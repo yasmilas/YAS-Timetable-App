@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مُصمم استعمال الزمن الاحترافي | Timetable Maker</title>
+  <title>مُصمم استعمال الزمن الاحترافي | Timetable Maker Pro</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -159,11 +159,11 @@
         </div>
       </div>
 
-      <!-- Time & Days Config -->
+      <!-- Time & Layout Config -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <h2 class="font-bold text-slate-700 border-b pb-2 mb-3 flex items-center gap-2">
           <i class="fa-solid fa-clock text-indigo-500"></i>
-          <span id="txt-timing-header">التوقيت والأيام</span>
+          <span id="txt-timing-header">التوقيت والأيام والشكل</span>
         </h2>
 
         <div class="space-y-3">
@@ -173,6 +173,15 @@
               <option value="5">5 أيام (الإثنين - الجمعة)</option>
               <option value="6">6 أيام (الإثنين - السبت)</option>
               <option value="7">7 أيام (جميع الأيام)</option>
+            </select>
+          </div>
+
+          <!-- Layout Orientation Switcher -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-layout-mode">اتجاه وشكل الجدول</label>
+            <select id="layout-mode-select" onchange="updateLayoutMode(this.value)" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none bg-indigo-50/50 text-indigo-900 font-medium">
+              <option value="vertical" id="opt-layout-vertical">طولي (الأيام أعمدة / الوقت أسطر)</option>
+              <option value="horizontal" id="opt-layout-horizontal">عرضي (الأيام أسطر / الوقت أعمدة)</option>
             </select>
           </div>
 
@@ -188,7 +197,7 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-slot-duration">مدة الحصة (بالدقائق)</label>
+            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-slot-duration">تقسيم الخانات التلقائي</label>
             <select id="slot-duration" onchange="renderGrid()" class="w-full px-3 py-1.5 text-sm border rounded-lg">
               <option value="45">45 دقيقة</option>
               <option value="55">55 دقيقة</option>
@@ -199,7 +208,7 @@
         </div>
       </div>
 
-      <!-- Add Session Form with Color Wheel -->
+      <!-- Add Session Form with Color Wheel & Exact Time -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <h2 class="font-bold text-slate-700 border-b pb-2 mb-3 flex items-center gap-2">
           <i class="fa-solid fa-plus-circle text-indigo-500"></i>
@@ -217,14 +226,35 @@
             <input type="text" id="input-teacher" placeholder="مثال: أ. أحمد / القاعة 4" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-select-day">اليوم</label>
+            <select id="input-day" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
+          </div>
+
+          <!-- Time Mode Selection: Slot vs Custom Range -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-time-type">نوع توقيت الحصة</label>
+            <select id="input-time-type" onchange="toggleTimeInputs('add')" class="w-full px-2 py-1.5 text-sm border rounded-lg bg-slate-50">
+              <option value="slot" id="opt-time-slot">حسب خانات الجدول التلقائية</option>
+              <option value="custom" id="opt-time-custom">توقيت مخصص ودقيق (بداية ونهاية)</option>
+            </select>
+          </div>
+
+          <!-- Standard Slot Selector -->
+          <div id="wrapper-slot-select">
+            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-select-time">الفترة الزمنية</label>
+            <select id="input-time-slot" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
+          </div>
+
+          <!-- Custom Time Range Inputs -->
+          <div id="wrapper-custom-time" class="hidden grid grid-cols-2 gap-2 bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
             <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-select-day">اليوم</label>
-              <select id="input-day" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
+              <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-custom-start">وقت البداية</label>
+              <input type="time" id="input-custom-start" value="08:00" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-select-time">الوقت</label>
-              <select id="input-time-slot" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
+              <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-custom-end">وقت النهاية</label>
+              <input type="time" id="input-custom-end" value="09:30" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
             </div>
           </div>
 
@@ -232,10 +262,8 @@
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-session-color">لون الحصة (اختر لوناً أو استخدم العجلة)</label>
             <div class="flex items-center gap-2">
-              <!-- Color Wheel Picker -->
               <input type="color" id="input-color-picker" value="#3b82f6" class="w-10 h-9 p-0.5 border rounded cursor-pointer bg-white" title="عجلة الألوان / Color Wheel">
               
-              <!-- Quick Palette Presets -->
               <div class="flex flex-wrap gap-1.5 flex-1">
                 <button type="button" onclick="setFormColor('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 hover:scale-110 transition"></button>
                 <button type="button" onclick="setFormColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 hover:scale-110 transition"></button>
@@ -297,7 +325,7 @@
               <thead>
                 <tr id="table-header-row" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                   <th class="p-2 border border-slate-200 w-20" id="th-time">الوقت</th>
-                  <!-- Days headers added dynamically -->
+                  <!-- Dynamic Headers -->
                 </tr>
               </thead>
               <tbody id="table-body">
@@ -338,6 +366,30 @@
       </div>
 
       <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-time-type">تعديل نوع التوقيت</label>
+        <select id="edit-time-type" onchange="toggleTimeInputs('edit')" class="w-full px-2 py-1.5 text-sm border rounded-lg bg-slate-50">
+          <option value="slot" id="opt-edit-time-slot">حسب خانات الجدول</option>
+          <option value="custom" id="opt-edit-time-custom">توقيت مخصص ودقيق</option>
+        </select>
+      </div>
+
+      <div id="wrapper-edit-slot">
+        <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-slot">الفترة</label>
+        <select id="edit-time-slot" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
+      </div>
+
+      <div id="wrapper-edit-custom" class="hidden grid grid-cols-2 gap-2 bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
+        <div>
+          <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-edit-custom-start">وقت البداية</label>
+          <input type="time" id="edit-custom-start" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-edit-custom-end">وقت النهاية</label>
+          <input type="time" id="edit-custom-end" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
+        </div>
+      </div>
+
+      <div>
         <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-color">لون الحصة (عجلة الألوان)</label>
         <div class="flex items-center gap-2">
           <input type="color" id="edit-color-picker" class="w-10 h-9 p-0.5 border rounded cursor-pointer bg-white">
@@ -366,7 +418,7 @@
 
   <!-- Application Logic & Scripts -->
   <script>
-    // --- Translation Data (5 Languages) ---
+    // --- Translation Data (5 Languages Complete) ---
     const translations = {
       ar: {
         dir: 'rtl',
@@ -376,23 +428,36 @@
         scheduleTitle: 'عنوان استعمال الزمن',
         duplicate: 'نسخ',
         delete: 'حذف',
-        timingHeader: 'التوقيت والأيام',
+        timingHeader: 'التوقيت والأيام والشكل',
         daysCount: 'عدد أيام الدراسة',
+        layoutMode: 'اتجاه وشكل الجدول',
+        layoutVertical: 'طولي (الأيام أعمدة / الوقت أسطر)',
+        layoutHorizontal: 'عرضي (الأيام أسطر / الوقت أعمدة)',
         startTime: 'بداية اليوم',
         endTime: 'نهاية اليوم',
-        slotDuration: 'مدة الحصة',
+        slotDuration: 'تقسيم الخانات التلقائي',
         addSessionHeader: 'إضافة حصة جديدة',
         subjectName: 'اسم المادة',
         teacherRoom: 'الأستاذ / القاعة',
         selectDay: 'اليوم',
-        selectTime: 'الوقت',
+        timeType: 'نوع توقيت الحصة',
+        timeSlotOpt: 'حسب خانات الجدول التلقائية',
+        timeCustomOpt: 'توقيت مخصص ودقيق (بداية ونهاية)',
+        selectTime: 'الفترة الزمنية',
+        customStart: 'وقت البداية',
+        customEnd: 'وقت النهاية',
         sessionColor: 'لون الحصة (عجلة الألوان)',
         addSessionBtn: 'إضافة الحصة',
         designHeader: 'التخصيص والتصميم',
         themeStyle: 'نمط التنسيق',
         smartFill: 'تعبئة نموذجية',
         timeTh: 'الوقت',
+        dayTh: 'اليوم / الوقت',
         conflictMsg: 'تنبيه: يوجد تعارض زمني بين الحصص المضافة!',
+        editModalTitle: 'تعديل الحصة',
+        editTimeType: 'تعديل نوع التوقيت',
+        btnSave: 'حفظ والتحديث',
+        btnCancel: 'إلغاء',
         days: ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد']
       },
       darija: {
@@ -403,23 +468,36 @@
         scheduleTitle: 'Anwan L-Emploi',
         duplicate: 'Copier',
         delete: 'Msa7',
-        timingHeader: 'Tawqit w Ayyam',
+        timingHeader: 'Tawqit, Ayyam w Shape',
         daysCount: 'Ayyam Ddirasa',
+        layoutMode: 'Ittijah L-Tableau',
+        layoutVertical: 'Tawli (Ayyam Columns)',
+        layoutHorizontal: '3ardi (Ayyam Rows)',
         startTime: 'Bdayat L-Yawm',
         endTime: 'Nihayat L-Yawm',
-        slotDuration: 'Muddat L-Hissa',
+        slotDuration: 'Taqsim L-Khanat',
         addSessionHeader: 'Zid Hissa Jdida',
         subjectName: 'Smiyat L-Madda',
         teacherRoom: 'Oustadh / Qaa',
         selectDay: 'L-Yawm',
-        selectTime: 'L-Waqt',
+        timeType: 'Naw3 Waqt L-Hissa',
+        timeSlotOpt: 'Hasab Khanat L-Tableau',
+        timeCustomOpt: 'Waqt Khas (Start & End)',
+        selectTime: 'L-Fatra L-Zamaniyya',
+        customStart: 'Waqt L-Bdaya',
+        customEnd: 'Waqt L-Nihaya',
         sessionColor: 'Lawn L-Hissa (Color Wheel)',
         addSessionBtn: 'Zid L-Hissa',
         designHeader: 'Tazyin w Design',
         themeStyle: 'Style L-Tableau',
         smartFill: 'T3biya Taba9iya',
         timeTh: 'L-Waqt',
+        dayTh: 'L-Yawm / Waqt',
         conflictMsg: 'Tandhir: Kayn Ta9atou3 f L-Owaqat!',
+        editModalTitle: 'T3dil L-Hissa',
+        editTimeType: 'T3dil Naw3 L-Waqt',
+        btnSave: 'Hfid w T3dil',
+        btnCancel: 'Annuler',
         days: ['L-Tneen', 'L-Tlat', 'L-Arba', 'L-Khmis', 'L-Jumaa', 'L-Sabt', 'L-Ahad']
       },
       fr: {
@@ -430,23 +508,36 @@
         scheduleTitle: 'Titre de l\'emploi',
         duplicate: 'Dupliquer',
         delete: 'Supprimer',
-        timingHeader: 'Horaires & Jours',
+        timingHeader: 'Horaires, Jours & Format',
         daysCount: 'Jours d\'études',
+        layoutMode: 'Orientation du Tableau',
+        layoutVertical: 'Vertical (Jours en colonnes)',
+        layoutHorizontal: 'Horizontal (Jours en lignes)',
         startTime: 'Début de journée',
         endTime: 'Fin de journée',
-        slotDuration: 'Durée du cours',
+        slotDuration: 'Division des créneaux',
         addSessionHeader: 'Ajouter un cours',
         subjectName: 'Nom de la matière',
         teacherRoom: 'Prof / Salle',
         selectDay: 'Jour',
-        selectTime: 'Heure',
+        timeType: 'Type d\'horaire',
+        timeSlotOpt: 'Selon créneaux standard',
+        timeCustomOpt: 'Horaire personnalisé (Début/Fin)',
+        selectTime: 'Créneau horaire',
+        customStart: 'Heure de début',
+        customEnd: 'Heure de fin',
         sessionColor: 'Couleur (Roue des couleurs)',
         addSessionBtn: 'Ajouter le cours',
         designHeader: 'Personnalisation',
         themeStyle: 'Style du tableau',
         smartFill: 'Remplissage Démo',
         timeTh: 'Heure',
+        dayTh: 'Jour / Heure',
         conflictMsg: 'Attention : Conflit d\'horaires détecté !',
+        editModalTitle: 'Modifier le cours',
+        editTimeType: 'Modifier le type d\'horaire',
+        btnSave: 'Enregistrer',
+        btnCancel: 'Annuler',
         days: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
       },
       es: {
@@ -457,50 +548,76 @@
         scheduleTitle: 'Título del Horario',
         duplicate: 'Duplicar',
         delete: 'Eliminar',
-        timingHeader: 'Horarios y Días',
+        timingHeader: 'Horarios, Días y Formato',
         daysCount: 'Días lectivos',
+        layoutMode: 'Orientación del Tabla',
+        layoutVertical: 'Vertical (Días en columnas)',
+        layoutHorizontal: 'Horizontal (Días en filas)',
         startTime: 'Inicio del día',
         endTime: 'Fin del día',
-        slotDuration: 'Duración de clase',
+        slotDuration: 'División de franjas',
         addSessionHeader: 'Añadir asignatura',
         subjectName: 'Asignatura',
         teacherRoom: 'Profesor / Aula',
         selectDay: 'Día',
-        selectTime: 'Hora',
+        timeType: 'Tipo de Horario',
+        timeSlotOpt: 'Según franjas estándar',
+        timeCustomOpt: 'Horario personalizado (Inicio/Fin)',
+        selectTime: 'Franja horaria',
+        customStart: 'Hora de inicio',
+        customEnd: 'Hora de fin',
         sessionColor: 'Color (Rueda de colores)',
         addSessionBtn: 'Añadir clase',
         designHeader: 'Personalización',
         themeStyle: 'Estilo visual',
         smartFill: 'Relleno Inteligente',
         timeTh: 'Hora',
+        dayTh: 'Día / Hora',
         conflictMsg: '¡Advertencia: Solapamiento de horarios!',
+        editModalTitle: 'Editar clase',
+        editTimeType: 'Editar tipo de horario',
+        btnSave: 'Guardar cambios',
+        btnCancel: 'Cancelar',
         days: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
       },
       en: {
         dir: 'ltr',
-        appTitle: 'Timetable Maker',
+        appTitle: 'Timetable Maker Pro',
         manageHeader: 'Schedule Control',
         autosaved: 'Auto-saved',
         scheduleTitle: 'Timetable Title',
         duplicate: 'Duplicate',
         delete: 'Delete',
-        timingHeader: 'Timing & Days',
+        timingHeader: 'Timing, Days & Layout',
         daysCount: 'School Days',
+        layoutMode: 'Grid Orientation',
+        layoutVertical: 'Vertical (Days in columns)',
+        layoutHorizontal: 'Horizontal (Days in rows)',
         startTime: 'Start Time',
         endTime: 'End Time',
-        slotDuration: 'Slot Duration',
+        slotDuration: 'Slot Interval',
         addSessionHeader: 'Add New Class',
         subjectName: 'Subject Name',
         teacherRoom: 'Teacher / Room',
         selectDay: 'Day',
+        timeType: 'Time Selection Mode',
+        timeSlotOpt: 'Standard Grid Slots',
+        timeCustomOpt: 'Custom Exact Time (Start & End)',
         selectTime: 'Time Slot',
+        customStart: 'Start Time',
+        customEnd: 'End Time',
         sessionColor: 'Class Color (Color Wheel)',
         addSessionBtn: 'Add Class',
         designHeader: 'Customization',
         themeStyle: 'Table Theme',
         smartFill: 'Sample Fill',
         timeTh: 'Time',
+        dayTh: 'Day / Time',
         conflictMsg: 'Warning: Time overlap conflict detected!',
+        editModalTitle: 'Edit Class',
+        editTimeType: 'Change Time Selection',
+        btnSave: 'Save & Update',
+        btnCancel: 'Cancel',
         days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       }
     };
@@ -514,6 +631,7 @@
           id: 'default',
           title: 'استعمال الزمن - الفصل الأول',
           daysCount: 6,
+          layoutMode: 'vertical', // 'vertical' or 'horizontal'
           startTime: '08:00',
           endTime: '18:00',
           slotDuration: 60,
@@ -523,9 +641,9 @@
       }
     };
 
-    // Load Data from LocalStorage
+    // Load Data
     function initData() {
-      const saved = localStorage.getItem('timetable_pwa_data');
+      const saved = localStorage.getItem('timetable_pwa_v2_data');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
@@ -536,7 +654,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('timetable_pwa_data', JSON.stringify(appData));
+      localStorage.setItem('timetable_pwa_v2_data', JSON.stringify(appData));
     }
 
     function getActiveTimetable() {
@@ -563,6 +681,9 @@
       document.getElementById('btn-delete').innerText = t.delete;
       document.getElementById('txt-timing-header').innerText = t.timingHeader;
       document.getElementById('lbl-days-count').innerText = t.daysCount;
+      document.getElementById('lbl-layout-mode').innerText = t.layoutMode;
+      document.getElementById('opt-layout-vertical').innerText = t.layoutVertical;
+      document.getElementById('opt-layout-horizontal').innerText = t.layoutHorizontal;
       document.getElementById('lbl-start-time').innerText = t.startTime;
       document.getElementById('lbl-end-time').innerText = t.endTime;
       document.getElementById('lbl-slot-duration').innerText = t.slotDuration;
@@ -570,7 +691,12 @@
       document.getElementById('lbl-subject-name').innerText = t.subjectName;
       document.getElementById('lbl-teacher-room').innerText = t.teacherRoom;
       document.getElementById('lbl-select-day').innerText = t.selectDay;
+      document.getElementById('lbl-time-type').innerText = t.timeType;
+      document.getElementById('opt-time-slot').innerText = t.timeSlotOpt;
+      document.getElementById('opt-time-custom').innerText = t.timeCustomOpt;
       document.getElementById('lbl-select-time').innerText = t.selectTime;
+      document.getElementById('lbl-custom-start').innerText = t.customStart;
+      document.getElementById('lbl-custom-end').innerText = t.customEnd;
       document.getElementById('lbl-session-color').innerText = t.sessionColor;
       document.getElementById('btn-add-session').innerText = t.addSessionBtn;
       document.getElementById('txt-design-header').innerText = t.designHeader;
@@ -578,6 +704,21 @@
       document.getElementById('btn-smart-fill').innerText = t.smartFill;
       document.getElementById('th-time').innerText = t.timeTh;
       document.getElementById('txt-conflict-msg').innerText = t.conflictMsg;
+
+      // Edit Modal Translations
+      document.getElementById('txt-edit-modal-title').innerText = t.editModalTitle;
+      document.getElementById('lbl-edit-subject').innerText = t.subjectName;
+      document.getElementById('lbl-edit-teacher').innerText = t.teacherRoom;
+      document.getElementById('lbl-edit-time-type').innerText = t.editTimeType;
+      document.getElementById('opt-edit-time-slot').innerText = t.timeSlotOpt;
+      document.getElementById('opt-edit-time-custom').innerText = t.timeCustomOpt;
+      document.getElementById('lbl-edit-slot').innerText = t.selectTime;
+      document.getElementById('lbl-edit-custom-start').innerText = t.customStart;
+      document.getElementById('lbl-edit-custom-end').innerText = t.customEnd;
+      document.getElementById('lbl-edit-color').innerText = t.sessionColor;
+      document.getElementById('btn-modal-save').innerText = t.btnSave;
+      document.getElementById('btn-modal-cancel').innerText = t.btnCancel;
+      document.getElementById('btn-modal-delete').innerText = t.delete;
 
       // Populate Select Day Options
       const daySelect = document.getElementById('input-day');
@@ -591,15 +732,24 @@
       });
     }
 
-    // --- Color Picker Helpers ---
-    function setFormColor(colorHex) {
-      document.getElementById('input-color-picker').value = colorHex;
-    }
-    function setEditFormColor(colorHex) {
-      document.getElementById('edit-color-picker').value = colorHex;
+    // Toggle Custom Time vs Slot Inputs
+    function toggleTimeInputs(mode) {
+      if (mode === 'add') {
+        const type = document.getElementById('input-time-type').value;
+        document.getElementById('wrapper-slot-select').classList.toggle('hidden', type === 'custom');
+        document.getElementById('wrapper-custom-time').classList.toggle('hidden', type === 'slot');
+      } else {
+        const type = document.getElementById('edit-time-type').value;
+        document.getElementById('wrapper-edit-slot').classList.toggle('hidden', type === 'custom');
+        document.getElementById('wrapper-edit-custom').classList.toggle('hidden', type === 'slot');
+      }
     }
 
-    // --- Timetable Navigation & Management ---
+    // Color Helpers
+    function setFormColor(hex) { document.getElementById('input-color-picker').value = hex; }
+    function setEditFormColor(hex) { document.getElementById('edit-color-picker').value = hex; }
+
+    // --- Timetable Control & Actions ---
     function updateTimetableDropdown() {
       const select = document.getElementById('timetable-select');
       select.innerHTML = '';
@@ -618,6 +768,7 @@
       const current = getActiveTimetable();
       document.getElementById('schedule-title-input').value = current.title;
       document.getElementById('days-count-select').value = current.daysCount;
+      document.getElementById('layout-mode-select').value = current.layoutMode || 'vertical';
       document.getElementById('start-time').value = current.startTime;
       document.getElementById('end-time').value = current.endTime;
       document.getElementById('slot-duration').value = current.slotDuration;
@@ -628,13 +779,14 @@
     }
 
     function createNewTimetablePrompt() {
-      const title = prompt("أدخل اسم استعمال الزمن الجديد:", "استعمال زمن جديد");
+      const title = prompt("أدخل اسم استعمال الزمن الجديد / Timetable Name:", "استعمال زمن جديد");
       if (!title) return;
       const newId = 'tt_' + Date.now();
       appData.timetables[newId] = {
         id: newId,
         title: title,
         daysCount: 6,
+        layoutMode: 'vertical',
         startTime: '08:00',
         endTime: '18:00',
         slotDuration: 60,
@@ -690,6 +842,13 @@
       renderGrid();
     }
 
+    function updateLayoutMode(val) {
+      const current = getActiveTimetable();
+      current.layoutMode = val;
+      saveData();
+      renderGrid();
+    }
+
     function changeThemeStyle(styleName) {
       const current = getActiveTimetable();
       current.theme = styleName;
@@ -697,7 +856,7 @@
       renderGrid();
     }
 
-    // --- Grid Calculation & Rendering ---
+    // --- Grid Calculations & Time Helpers ---
     function getTimeSlots(startTimeStr, endTimeStr, durationMin) {
       const slots = [];
       let [h, m] = startTimeStr.split(':').map(Number);
@@ -725,19 +884,40 @@
       return slots;
     }
 
+    function timeToMinutes(tStr) {
+      const [h, m] = tStr.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    // Checking whether session matches a slot or day
+    function sessionMatches(session, dayIndex, slot, slotsList) {
+      if (session.day !== dayIndex) return false;
+
+      if (session.timeType === 'custom') {
+        const sStart = timeToMinutes(session.customStart);
+        const sEnd = timeToMinutes(session.customEnd);
+        const slotStart = timeToMinutes(slot.start);
+        const slotEnd = timeToMinutes(slot.end);
+
+        // Overlap condition
+        return (sStart < slotEnd && sEnd > slotStart);
+      } else {
+        return session.slot === slotsList.indexOf(slot);
+      }
+    }
+
+    // --- RENDER GRID (Vertical vs Horizontal Layout) ---
     function renderGrid() {
       const current = getActiveTimetable();
       const t = translations[currentLang];
 
-      // Update Form Data Inputs
       document.getElementById('schedule-title-input').value = current.title;
       document.getElementById('display-schedule-title').innerText = current.title;
+      document.getElementById('layout-mode-select').value = current.layoutMode || 'vertical';
 
-      // Update Theme
       const tableContainer = document.getElementById('timetable-print-container');
       tableContainer.className = `bg-white p-6 rounded-xl shadow-md border border-slate-200 print-area min-h-[600px] flex flex-col justify-between ${current.theme || 'theme-modern'}`;
 
-      // Calculate slots
       const startTime = document.getElementById('start-time').value;
       const endTime = document.getElementById('end-time').value;
       const duration = parseInt(document.getElementById('slot-duration').value);
@@ -748,91 +928,120 @@
 
       const timeSlots = getTimeSlots(startTime, endTime, duration);
 
-      // Populate Form Time Slots
-      const timeSelect = document.getElementById('input-time-slot');
-      timeSelect.innerHTML = '';
-      timeSlots.forEach((slot, index) => {
-        const opt = document.createElement('option');
-        opt.value = index;
-        opt.innerText = slot.label;
-        timeSelect.appendChild(opt);
-      });
+      // Populate Form Select Slots
+      const populateSlotSelect = (elemId) => {
+        const sel = document.getElementById(elemId);
+        sel.innerHTML = '';
+        timeSlots.forEach((slot, index) => {
+          const opt = document.createElement('option');
+          opt.value = index;
+          opt.innerText = slot.label;
+          sel.appendChild(opt);
+        });
+      };
+      populateSlotSelect('input-time-slot');
+      populateSlotSelect('edit-time-slot');
 
-      // Render Header Row Days
       const headerRow = document.getElementById('table-header-row');
-      headerRow.innerHTML = `<th class="p-2 border border-slate-200 w-24 bg-slate-100 text-slate-700">${t.timeTh}</th>`;
-      for (let d = 0; d < current.daysCount; d++) {
-        const th = document.createElement('th');
-        th.className = "p-2 border border-slate-200 text-slate-700 font-bold bg-slate-50";
-        th.innerText = t.days[d];
-        headerRow.appendChild(th);
-      }
-
-      // Render Table Body
       const tbody = document.getElementById('table-body');
       tbody.innerHTML = '';
-
       let hasConflict = false;
 
-      timeSlots.forEach((slot, slotIndex) => {
-        const tr = document.createElement('tr');
-
-        // Time Cell
-        const tdTime = document.createElement('td');
-        tdTime.className = "p-2 border border-slate-200 text-xs font-semibold bg-slate-50/50 text-slate-600";
-        tdTime.innerText = slot.label;
-        tr.appendChild(tdTime);
-
-        // Day Cells
-        for (let dayIndex = 0; dayIndex < current.daysCount; dayIndex++) {
-          const td = document.createElement('td');
-          td.className = "p-1 border border-slate-200 align-top h-20 transition duration-150 relative";
-          td.dataset.day = dayIndex;
-          td.dataset.slot = slotIndex;
-
-          // Drag & Drop Listeners
-          td.ondragover = (e) => { e.preventDefault(); td.classList.add('drag-over'); };
-          td.ondragleave = () => td.classList.remove('drag-over');
-          td.ondrop = (e) => handleDrop(e, dayIndex, slotIndex);
-
-          // Find Sessions matching day & slot
-          const matchingSessions = current.sessions.filter(s => s.day === dayIndex && s.slot === slotIndex);
-
-          if (matchingSessions.length > 1) hasConflict = true;
-
-          matchingSessions.forEach(session => {
-            const card = document.createElement('div');
-            card.draggable = true;
-            card.ondragstart = (e) => handleDragStart(e, session.id);
-            card.onclick = () => openEditModal(session.id);
-            card.className = "p-2 rounded-lg text-white text-xs shadow-sm cursor-pointer hover:shadow-md transition relative group flex flex-col justify-between h-full";
-            card.style.backgroundColor = session.color || '#3b82f6';
-
-            card.innerHTML = `
-              <div>
-                <div class="font-bold text-sm tracking-wide leading-tight">${session.subject}</div>
-                ${session.teacher ? `<div class="text-[11px] opacity-90 mt-1"><i class="fa-solid fa-user-circle text-[10px]"></i> ${session.teacher}</div>` : ''}
-              </div>
-              <div class="text-[10px] opacity-75 mt-2 flex justify-between items-center border-t border-white/20 pt-1">
-                <span><i class="fa-solid fa-clock"></i> ${slot.start}</span>
-                <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
-              </div>
-            `;
-            td.appendChild(card);
-          });
-
-          tr.appendChild(td);
+      // MODE 1: VERTICAL (Days in Columns, Time in Rows)
+      if (current.layoutMode === 'vertical') {
+        headerRow.innerHTML = `<th class="p-2 border border-slate-200 w-24 bg-slate-100 text-slate-700">${t.timeTh}</th>`;
+        for (let d = 0; d < current.daysCount; d++) {
+          const th = document.createElement('th');
+          th.className = "p-2 border border-slate-200 text-slate-700 font-bold bg-slate-50";
+          th.innerText = t.days[d];
+          headerRow.appendChild(th);
         }
 
-        tbody.appendChild(tr);
-      });
+        timeSlots.forEach((slot, slotIndex) => {
+          const tr = document.createElement('tr');
+          const tdTime = document.createElement('td');
+          tdTime.className = "p-2 border border-slate-200 text-xs font-semibold bg-slate-50/50 text-slate-600";
+          tdTime.innerText = slot.label;
+          tr.appendChild(tdTime);
 
-      // Show/Hide Conflicts
+          for (let dayIndex = 0; dayIndex < current.daysCount; dayIndex++) {
+            const td = createGridCell(dayIndex, slotIndex, slot, timeSlots, current, (conf) => { if(conf) hasConflict = true; });
+            tr.appendChild(td);
+          }
+          tbody.appendChild(tr);
+        });
+      } 
+      // MODE 2: HORIZONTAL (Days in Rows, Time in Columns)
+      else {
+        headerRow.innerHTML = `<th class="p-2 border border-slate-200 w-28 bg-slate-100 text-slate-700">${t.dayTh}</th>`;
+        timeSlots.forEach(slot => {
+          const th = document.createElement('th');
+          th.className = "p-2 border border-slate-200 text-slate-700 font-bold bg-slate-50 text-xs min-w-[100px]";
+          th.innerText = slot.label;
+          headerRow.appendChild(th);
+        });
+
+        for (let dayIndex = 0; dayIndex < current.daysCount; dayIndex++) {
+          const tr = document.createElement('tr');
+          const tdDay = document.createElement('td');
+          tdDay.className = "p-2 border border-slate-200 text-xs font-bold bg-slate-50 text-slate-700";
+          tdDay.innerText = t.days[dayIndex];
+          tr.appendChild(tdDay);
+
+          timeSlots.forEach((slot, slotIndex) => {
+            const td = createGridCell(dayIndex, slotIndex, slot, timeSlots, current, (conf) => { if(conf) hasConflict = true; });
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        }
+      }
+
       document.getElementById('conflict-alert').classList.toggle('hidden', !hasConflict);
       saveData();
     }
 
-    // --- Add & Edit Sessions Logic ---
+    // Helper for Cell Generation
+    function createGridCell(dayIndex, slotIndex, slot, timeSlots, current, conflictCallback) {
+      const td = document.createElement('td');
+      td.className = "p-1 border border-slate-200 align-top h-20 transition duration-150 relative min-w-[110px]";
+      
+      td.ondragover = (e) => { e.preventDefault(); td.classList.add('drag-over'); };
+      td.ondragleave = () => td.classList.remove('drag-over');
+      td.ondrop = (e) => handleDrop(e, dayIndex, slotIndex);
+
+      const matchingSessions = current.sessions.filter(s => sessionMatches(s, dayIndex, slot, timeSlots));
+
+      if (matchingSessions.length > 1) conflictCallback(true);
+
+      matchingSessions.forEach(session => {
+        const card = document.createElement('div');
+        card.draggable = true;
+        card.ondragstart = (e) => handleDragStart(e, session.id);
+        card.onclick = () => openEditModal(session.id);
+        card.className = "p-2 rounded-lg text-white text-xs shadow-sm cursor-pointer hover:shadow-md transition relative group flex flex-col justify-between h-full mb-1";
+        card.style.backgroundColor = session.color || '#3b82f6';
+
+        const displayTime = session.timeType === 'custom' 
+          ? `${session.customStart} - ${session.customEnd}` 
+          : slot.start;
+
+        card.innerHTML = `
+          <div>
+            <div class="font-bold text-xs tracking-wide leading-tight">${session.subject}</div>
+            ${session.teacher ? `<div class="text-[10px] opacity-90 mt-1"><i class="fa-solid fa-user-circle text-[9px]"></i> ${session.teacher}</div>` : ''}
+          </div>
+          <div class="text-[9px] opacity-80 mt-1 flex justify-between items-center border-t border-white/20 pt-0.5">
+            <span><i class="fa-solid fa-clock"></i> ${displayTime}</span>
+            <i class="fa-solid fa-pen text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
+          </div>
+        `;
+        td.appendChild(card);
+      });
+
+      return td;
+    }
+
+    // --- Session Handlers ---
     function handleAddSession(e) {
       e.preventDefault();
       const current = getActiveTimetable();
@@ -840,7 +1049,10 @@
       const subject = document.getElementById('input-subject').value;
       const teacher = document.getElementById('input-teacher').value;
       const day = parseInt(document.getElementById('input-day').value);
+      const timeType = document.getElementById('input-time-type').value;
       const slot = parseInt(document.getElementById('input-time-slot').value);
+      const customStart = document.getElementById('input-custom-start').value;
+      const customEnd = document.getElementById('input-custom-end').value;
       const color = document.getElementById('input-color-picker').value;
 
       const newSession = {
@@ -848,7 +1060,10 @@
         subject,
         teacher,
         day,
-        slot,
+        timeType,
+        slot: timeType === 'slot' ? slot : null,
+        customStart: timeType === 'custom' ? customStart : null,
+        customEnd: timeType === 'custom' ? customEnd : null,
         color
       };
 
@@ -871,12 +1086,14 @@
       const session = current.sessions.find(s => s.id === sessionId);
       if (session) {
         session.day = targetDay;
-        session.slot = targetSlot;
+        if (session.timeType === 'slot') {
+          session.slot = targetSlot;
+        }
         renderGrid();
       }
     }
 
-    // Edit Modal
+    // Edit Modal Logic
     function openEditModal(sessionId) {
       const current = getActiveTimetable();
       const session = current.sessions.find(s => s.id === sessionId);
@@ -885,8 +1102,13 @@
       document.getElementById('edit-session-id').value = session.id;
       document.getElementById('edit-subject').value = session.subject;
       document.getElementById('edit-teacher').value = session.teacher || '';
+      document.getElementById('edit-time-type').value = session.timeType || 'slot';
+      document.getElementById('edit-time-slot').value = session.slot || 0;
+      document.getElementById('edit-custom-start').value = session.customStart || '08:00';
+      document.getElementById('edit-custom-end').value = session.customEnd || '09:30';
       document.getElementById('edit-color-picker').value = session.color || '#3b82f6';
 
+      toggleTimeInputs('edit');
       document.getElementById('edit-modal').classList.remove('hidden');
     }
 
@@ -902,6 +1124,10 @@
       if (session) {
         session.subject = document.getElementById('edit-subject').value;
         session.teacher = document.getElementById('edit-teacher').value;
+        session.timeType = document.getElementById('edit-time-type').value;
+        session.slot = session.timeType === 'slot' ? parseInt(document.getElementById('edit-time-slot').value) : null;
+        session.customStart = session.timeType === 'custom' ? document.getElementById('edit-custom-start').value : null;
+        session.customEnd = session.timeType === 'custom' ? document.getElementById('edit-custom-end').value : null;
         session.color = document.getElementById('edit-color-picker').value;
         renderGrid();
       }
@@ -932,18 +1158,19 @@
         { name: 'التاريخ والجغرافيا', teacher: 'أ. التازي', color: '#ef4444' }
       ];
 
-      current.sessions = []; // Clear current for clean demo fill
+      current.sessions = [];
       let sampleIndex = 0;
 
       for (let day = 0; day < Math.min(current.daysCount, 5); day++) {
         for (let slot = 0; slot < 4; slot++) {
-          if ((day + slot) % 3 === 0) continue; // Leaves random breaks
+          if ((day + slot) % 3 === 0) continue;
           const sub = sampleSubjects[sampleIndex % sampleSubjects.length];
           current.sessions.push({
             id: 's_ai_' + day + '_' + slot,
             subject: sub.name,
             teacher: sub.teacher,
             day: day,
+            timeType: 'slot',
             slot: slot,
             color: sub.color
           });
@@ -954,7 +1181,7 @@
       renderGrid();
     }
 
-    // --- Exporting Options ---
+    // --- Export Functions ---
     function exportPDF() {
       const element = document.getElementById('timetable-print-container');
       const opt = {
