@@ -1,1211 +1,2945 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مُصمم استعمال الزمن الاحترافي | Timetable Maker Pro</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- html2pdf.js & html2canvas for Exporting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- PWA Manifest Link -->
-  <link rel="manifest" href="./manifest.json">
+<title>YAS! Timetable</title>
 
-  <!-- Service Worker Registration for Offline Support -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker Registered Successfully!'))
-          .catch(err => console.error('Service Worker Registration Failed:', err));
-      });
-    }
-  </script>
+<!-- Libraries for export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <style>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #f8f5fb;
+    --card: #ffffff;
+    --text: #4d4654;
+    --muted: #8b8492;
+    --border: #e9e2ed;
+    --primary: #9c82b5;
+    --primary-dark: #76568f;
+    --danger: #d88989;
+    --shadow: 0 8px 25px rgba(80, 60, 90, 0.08);
+}
+
+body {
+    margin: 0;
+    font-family: Arial, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* ---------- HEADER ---------- */
+
+header {
+    background: rgba(255,255,255,0.95);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 25px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.header-inner {
+    max-width: 1500px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 800;
+    color: var(--primary-dark);
+}
+
+.logo span {
+    color: #c58fb1;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ---------- BUTTONS ---------- */
+
+button,
+select,
+input {
+    font: inherit;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: 12px;
+    background: #f2edf5;
+    color: var(--text);
+    transition: 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    background: #eae1ef;
+}
+
+.btn.primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn.primary:hover {
+    background: var(--primary-dark);
+}
+
+.btn.danger {
+    background: #f6e1e1;
+    color: #a55c5c;
+}
+
+/* ---------- MAIN ---------- */
+
+.container {
+    width: min(1500px, 95%);
+    margin: 25px auto 60px;
+}
+
+.panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.panel-title {
+    font-size: 19px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* ---------- SETTINGS ---------- */
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 15px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field label {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.field input,
+.field select {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: #fcfbfd;
+    border-radius: 11px;
+    padding: 10px;
+    outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+    border-color: var(--primary);
+}
+
+/* ---------- SUBJECT COLORS ---------- */
+
+.subject-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.subject-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #faf8fb;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.color-circle {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px #ddd;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* ---------- TIMETABLE ---------- */
+
+.table-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 15px;
+    border: 1px solid var(--border);
+}
+
+.timetable {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    min-width: 900px;
+    table-layout: fixed;
+}
+
+.timetable th,
+.timetable td {
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.timetable th {
+    background: #f7f3f9;
+    padding: 13px 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.time-cell {
+    width: 100px;
+    min-width: 100px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    background: #faf8fb;
+    padding: 7px;
+}
+
+.day-cell {
+    height: 65px;
+    min-height: 65px;
+    padding: 4px;
+    vertical-align: top;
+}
+
+.empty-cell {
+    background: #fff;
+}
+
+.deleted-time {
+    background: repeating-linear-gradient(
+        45deg,
+        #f7f3f9,
+        #f7f3f9 8px,
+        #eee8f1 8px,
+        #eee8f1 16px
+    );
+}
+
+/* ---------- LESSON ---------- */
+
+.lesson {
+    width: 100%;
+    height: 100%;
+    min-height: 55px;
+    border-radius: 11px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: 0.15s;
+    overflow: hidden;
+}
+
+.lesson:hover {
+    transform: scale(1.015);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.lesson-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.lesson-info {
+    font-size: 11px;
+    margin-top: 4px;
+    opacity: 0.75;
+}
+
+.lesson-long {
+    min-height: 120px;
+}
+
+/* ---------- MODAL ---------- */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(45, 35, 50, 0.35);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    padding: 20px;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal {
+    width: min(600px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 22px;
+    padding: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal h2 {
+    margin-top: 0;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+}
+
+.modal-full {
+    grid-column: 1 / -1;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* ---------- COLOR PICKER ---------- */
+
+.color-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.color-picker {
+    width: 55px;
+    height: 40px;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+}
+
+/* ---------- DELETE TIME ---------- */
+
+.deleted-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.deleted-item {
+    background: #f6e4e4;
+    color: #985b5b;
+    padding: 8px 10px;
+    border-radius: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.deleted-item button {
+    background: none;
+    color: inherit;
+    font-weight: bold;
+}
+
+/* ---------- TOAST ---------- */
+
+.toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #4d4654;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 12px;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 1000;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- PRINT ---------- */
+
+@media print {
+
     body {
-      font-family: 'Alexandria', 'Poppins', sans-serif;
-    }
-    
-    .theme-pastel {
-      --bg-header: #f3e8ff;
-      --text-header: #6b21a8;
-      --border-color: #e9d5ff;
-    }
-    .theme-modern {
-      --bg-header: #f1f5f9;
-      --text-header: #0f172a;
-      --border-color: #cbd5e1;
-    }
-    .theme-vibrant {
-      --bg-header: #fef3c7;
-      --text-header: #92400e;
-      --border-color: #fde68a;
-    }
-    .theme-dark {
-      --bg-header: #1e293b;
-      --text-header: #f8fafc;
-      --border-color: #334155;
+        background: white;
     }
 
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white !important; color: black !important; padding: 0 !important; }
-      .print-area { shadow: none !important; border: none !important; width: 100% !important; margin: 0 !important; }
+    header,
+    .settings-panel,
+    .subject-panel,
+    .actions-panel,
+    .no-print {
+        display: none !important;
     }
 
-    .drag-over {
-      background-color: rgba(99, 102, 241, 0.15) !important;
-      border: 2px dashed #4f46e5 !important;
+    .container {
+        width: 100%;
+        margin: 0;
     }
-  </style>
+
+    .panel {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .table-wrapper {
+        overflow: visible;
+        border: none;
+    }
+
+    .timetable {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .timetable th,
+    .timetable td {
+        border-color: #ccc;
+    }
+
+    .lesson {
+        box-shadow: none !important;
+    }
+
+    @page {
+        size: A4 landscape;
+        margin: 5mm;
+    }
+}
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width: 700px) {
+
+    .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .modal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-full {
+        grid-column: auto;
+    }
+
+    .container {
+        width: 97%;
+    }
+}
+</style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
-  <!-- Top Navigation Bar -->
-  <header class="bg-indigo-600 text-white shadow-md no-print">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
-      <div class="flex items-center gap-3">
-        <i class="fa-solid fa-calendar-days text-2xl text-indigo-200"></i>
-        <h1 class="font-bold text-xl tracking-wide" id="app-title">مُصمم استعمال الزمن</h1>
-      </div>
+<body>
 
-      <!-- Actions & Language Selector -->
-      <div class="flex flex-wrap items-center gap-3">
-        <!-- Multi-Timetable Select -->
-        <div class="flex items-center bg-indigo-700 rounded-lg px-2 py-1">
-          <i class="fa-solid fa-folder-open text-indigo-200 text-sm mx-1"></i>
-          <select id="timetable-select" onchange="switchTimetable(this.value)" class="bg-transparent text-white text-sm outline-none cursor-pointer py-1">
-            <!-- Dynamic options -->
-          </select>
-          <button onclick="createNewTimetablePrompt()" title="New Timetable" class="mr-2 ml-1 text-indigo-200 hover:text-white">
-            <i class="fa-solid fa-plus-circle"></i>
-          </button>
+<header>
+    <div class="header-inner">
+
+        <div class="logo">
+            YAS<span>!</span> Timetable
         </div>
 
-        <!-- Language Selector -->
-        <div class="flex items-center bg-indigo-700 rounded-lg px-2 py-1">
-          <i class="fa-solid fa-globe text-indigo-200 text-sm mx-1"></i>
-          <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-transparent text-white text-sm outline-none cursor-pointer py-1">
-            <option value="ar" class="text-slate-800">العربية</option>
-            <option value="darija" class="text-slate-800">Darija (English)</option>
-            <option value="fr" class="text-slate-800">Français</option>
-            <option value="es" class="text-slate-800">Español</option>
-            <option value="en" class="text-slate-800">English</option>
-          </select>
+        <div class="header-actions">
+
+            <button class="btn" onclick="openLessonModal()">
+                ＋ <span data-i18n="addLesson">Ajouter</span>
+            </button>
+
+            <button class="btn" onclick="saveData()">
+                💾 <span data-i18n="save">Sauvegarder</span>
+            </button>
+
+            <button class="btn" onclick="window.print()">
+                🖨️ <span data-i18n="print">Imprimer</span>
+            </button>
+
+            <button class="btn" onclick="exportPNG()">
+                🖼️ PNG
+            </button>
+
+            <button class="btn primary" onclick="exportPDF()">
+                📄 PDF
+            </button>
+
         </div>
 
-        <!-- Smart Actions -->
-        <button onclick="generateAIPlanner()" class="bg-amber-500 hover:bg-amber-600 text-white text-sm px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-          <span id="btn-smart-fill">تعبئة نموذجية</span>
-        </button>
-
-        <!-- Quick Export Buttons -->
-        <button onclick="exportPDF()" class="bg-rose-500 hover:bg-rose-600 text-white text-sm px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-file-pdf"></i>
-          <span>PDF</span>
-        </button>
-        <button onclick="exportPNG()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-image"></i>
-          <span>PNG</span>
-        </button>
-        <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-sm px-3 py-1.5 rounded-lg font-medium transition flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-print"></i>
-        </button>
-      </div>
     </div>
-  </header>
+</header>
 
-  <!-- Main Workspace -->
-  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-4 gap-6">
-    
-    <!-- Sidebar / Settings Panel -->
-    <aside class="lg:col-span-1 space-y-6 no-print">
-      
-      <!-- Management Card -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="font-bold text-slate-700 border-b pb-2 mb-3 flex items-center justify-between">
-          <span id="txt-manage-header"><i class="fa-solid fa-sliders text-indigo-500 ml-2"></i> إدارة الجدول</span>
-          <span class="text-xs font-normal text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-check text-xs"></i> <span id="txt-autosaved">حفظ تلقائي</span></span>
-        </h2>
-        
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-schedule-title">عنوان استعمال الزمن</label>
-            <input type="text" id="schedule-title-input" oninput="updateScheduleTitle(this.value)" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
-          </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="duplicateCurrentTimetable()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-lg font-medium transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-copy"></i>
-              <span id="btn-duplicate">نسخ</span>
-            </button>
-            <button onclick="deleteCurrentTimetable()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 text-xs py-2 rounded-lg font-medium transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-trash"></i>
-              <span id="btn-delete">حذف</span>
-            </button>
-          </div>
-        </div>
-      </div>
+<main class="container">
 
-      <!-- Time & Layout Config -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="font-bold text-slate-700 border-b pb-2 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-clock text-indigo-500"></i>
-          <span id="txt-timing-header">التوقيت والأيام والشكل</span>
-        </h2>
+    <!-- SETTINGS -->
 
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-days-count">عدد أيام الدراسة</label>
-            <select id="days-count-select" onchange="updateDaysCount(this.value)" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
-              <option value="5">5 أيام (الإثنين - الجمعة)</option>
-              <option value="6">6 أيام (الإثنين - السبت)</option>
-              <option value="7">7 أيام (جميع الأيام)</option>
-            </select>
-          </div>
+    <section class="panel settings-panel no-print">
 
-          <!-- Layout Orientation Switcher -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-layout-mode">اتجاه وشكل الجدول</label>
-            <select id="layout-mode-select" onchange="updateLayoutMode(this.value)" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none bg-indigo-50/50 text-indigo-900 font-medium">
-              <option value="vertical" id="opt-layout-vertical">طولي (الأيام أعمدة / الوقت أسطر)</option>
-              <option value="horizontal" id="opt-layout-horizontal">عرضي (الأيام أسطر / الوقت أعمدة)</option>
-            </select>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-start-time">بداية اليوم</label>
-              <input type="time" id="start-time" value="08:00" onchange="renderGrid()" class="w-full px-2 py-1 text-sm border rounded-lg">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-end-time">نهاية اليوم</label>
-              <input type="time" id="end-time" value="18:00" onchange="renderGrid()" class="w-full px-2 py-1 text-sm border rounded-lg">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-slot-duration">تقسيم الخانات التلقائي</label>
-            <select id="slot-duration" onchange="renderGrid()" class="w-full px-3 py-1.5 text-sm border rounded-lg">
-              <option value="45">45 دقيقة</option>
-              <option value="55">55 دقيقة</option>
-              <option value="60" selected>60 دقيقة (ساعة)</option>
-              <option value="120">120 دقيقة (ساعتان)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Add Session Form with Color Wheel & Exact Time -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="font-bold text-slate-700 border-b pb-2 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-plus-circle text-indigo-500"></i>
-          <span id="txt-add-session-header">إضافة حصة جديدة</span>
-        </h2>
-
-        <form id="add-session-form" onsubmit="handleAddSession(event)" class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-subject-name">اسم المادة</label>
-            <input type="text" id="input-subject" required placeholder="مثال: الرياضيات" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-teacher-room">الأستاذ / القاعة</label>
-            <input type="text" id="input-teacher" placeholder="مثال: أ. أحمد / القاعة 4" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-select-day">اليوم</label>
-            <select id="input-day" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
-          </div>
-
-          <!-- Time Mode Selection: Slot vs Custom Range -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-time-type">نوع توقيت الحصة</label>
-            <select id="input-time-type" onchange="toggleTimeInputs('add')" class="w-full px-2 py-1.5 text-sm border rounded-lg bg-slate-50">
-              <option value="slot" id="opt-time-slot">حسب خانات الجدول التلقائية</option>
-              <option value="custom" id="opt-time-custom">توقيت مخصص ودقيق (بداية ونهاية)</option>
-            </select>
-          </div>
-
-          <!-- Standard Slot Selector -->
-          <div id="wrapper-slot-select">
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-select-time">الفترة الزمنية</label>
-            <select id="input-time-slot" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
-          </div>
-
-          <!-- Custom Time Range Inputs -->
-          <div id="wrapper-custom-time" class="hidden grid grid-cols-2 gap-2 bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
-            <div>
-              <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-custom-start">وقت البداية</label>
-              <input type="time" id="input-custom-start" value="08:00" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-custom-end">وقت النهاية</label>
-              <input type="time" id="input-custom-end" value="09:30" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
-            </div>
-          </div>
-
-          <!-- Color Wheel & Palette Section -->
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-session-color">لون الحصة (اختر لوناً أو استخدم العجلة)</label>
-            <div class="flex items-center gap-2">
-              <input type="color" id="input-color-picker" value="#3b82f6" class="w-10 h-9 p-0.5 border rounded cursor-pointer bg-white" title="عجلة الألوان / Color Wheel">
-              
-              <div class="flex flex-wrap gap-1.5 flex-1">
-                <button type="button" onclick="setFormColor('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 hover:scale-110 transition"></button>
-                <button type="button" onclick="setFormColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 hover:scale-110 transition"></button>
-                <button type="button" onclick="setFormColor('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-110 transition"></button>
-                <button type="button" onclick="setFormColor('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500 hover:scale-110 transition"></button>
-                <button type="button" onclick="setFormColor('#8b5cf6')" class="w-6 h-6 rounded-full bg-purple-500 hover:scale-110 transition"></button>
-                <button type="button" onclick="setFormColor('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500 hover:scale-110 transition"></button>
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 rounded-lg transition shadow">
-            <span id="btn-add-session"><i class="fa-solid fa-plus ml-1"></i> إضافة الحصة</span>
-          </button>
-        </form>
-      </div>
-
-      <!-- Styling & Theme Customization -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="font-bold text-slate-700 border-b pb-2 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-palette text-indigo-500"></i>
-          <span id="txt-design-header">التخصيص والتصميم</span>
-        </h2>
-
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-theme-style">نمط التنسيق</label>
-            <select id="theme-style-select" onchange="changeThemeStyle(this.value)" class="w-full px-3 py-1.5 text-sm border rounded-lg">
-              <option value="theme-modern">عصري (Modern)</option>
-              <option value="theme-pastel">باستيل (Pastel)</option>
-              <option value="theme-vibrant">حيوي (Vibrant)</option>
-              <option value="theme-dark">داكن (Dark)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- Timetable Live Preview Area -->
-    <section class="lg:col-span-3">
-      <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 print-area min-h-[600px] flex flex-col justify-between" id="timetable-print-container">
-        <div>
-          <!-- Schedule Header -->
-          <div class="text-center mb-6 pb-4 border-b border-slate-200">
-            <h2 id="display-schedule-title" class="text-2xl font-bold text-slate-800 tracking-wide">جدول استعمال الزمن الدراسي</h2>
-            <p id="display-schedule-subtitle" class="text-xs text-slate-500 mt-1">العام الدراسي الحالي</p>
-          </div>
-
-          <!-- Conflicts Alert Notification -->
-          <div id="conflict-alert" class="hidden mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center gap-2">
-            <i class="fa-solid fa-triangle-exclamation text-red-500 text-sm"></i>
-            <span id="txt-conflict-msg">تنبيه: يوجد تعارض زمني في بعض الحصص المضافة!</span>
-          </div>
-
-          <!-- Dynamic Timetable Grid -->
-          <div class="overflow-x-auto">
-            <table class="w-full border-collapse border border-slate-200 text-center text-sm" id="timetable-table">
-              <thead>
-                <tr id="table-header-row" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                  <th class="p-2 border border-slate-200 w-20" id="th-time">الوقت</th>
-                  <!-- Dynamic Headers -->
-                </tr>
-              </thead>
-              <tbody id="table-body">
-                <!-- Grid Cells Rendering Dynamic -->
-              </tbody>
-            </table>
-          </div>
+        <div class="panel-title" data-i18n="settings">
+            Paramètres
         </div>
 
-        <!-- Print Footer -->
-        <div class="mt-8 pt-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
-          <span>تم الإنشاء بواسطة مُصمم استعمال الزمن</span>
-          <span id="footer-date"></span>
+        <div class="settings-grid">
+
+            <div class="field">
+                <label data-i18n="language">
+                    Langue
+                </label>
+
+                <select id="language" onchange="changeLanguage(this.value)">
+                    <option value="fr">Français</option>
+                    <option value="ar">العربية</option>
+                    <option value="darija">الدارجة</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="startDay">
+                    Début de la journée
+                </label>
+
+                <input
+                    type="time"
+                    id="dayStart"
+                    value="08:00"
+                    onchange="renderTimetable()"
+                >
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="endDay">
+                    Fin de la journée
+                </label>
+
+                <input
+                    type="time"
+                    id="dayEnd"
+                    value="18:00"
+                    onchange="renderTimetable()"
+                >
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="slot">
+                    Durée d'une tranche
+                </label>
+
+                <select id="slotDuration" onchange="renderTimetable()">
+                    <option value="30">30 min</option>
+                    <option value="60" selected>1 h</option>
+                    <option value="90">1 h 30</option>
+                    <option value="120">2 h</option>
+                </select>
+            </div>
+
         </div>
-      </div>
+
     </section>
 
-  </main>
 
-  <!-- Edit Session Modal -->
-  <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-5 space-y-4">
-      <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-slate-800" id="txt-edit-modal-title">تعديل الحصة</h3>
-        <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
+    <!-- DELETE TIME -->
 
-      <input type="hidden" id="edit-session-id">
-      
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-subject">المادة</label>
-        <input type="text" id="edit-subject" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
-      </div>
+    <section class="panel no-print">
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-teacher">الأستاذ / القاعة</label>
-        <input type="text" id="edit-teacher" class="w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none">
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-time-type">تعديل نوع التوقيت</label>
-        <select id="edit-time-type" onchange="toggleTimeInputs('edit')" class="w-full px-2 py-1.5 text-sm border rounded-lg bg-slate-50">
-          <option value="slot" id="opt-edit-time-slot">حسب خانات الجدول</option>
-          <option value="custom" id="opt-edit-time-custom">توقيت مخصص ودقيق</option>
-        </select>
-      </div>
-
-      <div id="wrapper-edit-slot">
-        <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-slot">الفترة</label>
-        <select id="edit-time-slot" class="w-full px-2 py-1.5 text-sm border rounded-lg"></select>
-      </div>
-
-      <div id="wrapper-edit-custom" class="hidden grid grid-cols-2 gap-2 bg-indigo-50/50 p-2 rounded-lg border border-indigo-100">
-        <div>
-          <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-edit-custom-start">وقت البداية</label>
-          <input type="time" id="edit-custom-start" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
+        <div class="panel-title" data-i18n="deletePeriod">
+            Supprimer une période vide
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-indigo-900 mb-1" id="lbl-edit-custom-end">وقت النهاية</label>
-          <input type="time" id="edit-custom-end" class="w-full px-2 py-1 text-sm border rounded-lg bg-white">
-        </div>
-      </div>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-500 mb-1" id="lbl-edit-color">لون الحصة (عجلة الألوان)</label>
-        <div class="flex items-center gap-2">
-          <input type="color" id="edit-color-picker" class="w-10 h-9 p-0.5 border rounded cursor-pointer bg-white">
-          <div class="flex flex-wrap gap-1.5 flex-1">
-            <button type="button" onclick="setEditFormColor('#ef4444')" class="w-6 h-6 rounded-full bg-red-500"></button>
-            <button type="button" onclick="setEditFormColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500"></button>
-            <button type="button" onclick="setEditFormColor('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500"></button>
-            <button type="button" onclick="setEditFormColor('#f59e0b')" class="w-6 h-6 rounded-full bg-amber-500"></button>
-            <button type="button" onclick="setEditFormColor('#8b5cf6')" class="w-6 h-6 rounded-full bg-purple-500"></button>
-            <button type="button" onclick="setEditFormColor('#ec4899')" class="w-6 h-6 rounded-full bg-pink-500"></button>
-          </div>
-        </div>
-      </div>
+        <div class="settings-grid">
 
-      <div class="flex justify-between items-center gap-2 pt-2 border-t">
-        <button type="button" onclick="deleteSessionFromModal()" class="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1">
-          <i class="fa-solid fa-trash"></i> <span id="btn-modal-delete">حذف</span>
-        </button>
-        <div class="flex gap-2">
-          <button type="button" onclick="closeEditModal()" class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-semibold" id="btn-modal-cancel">إلغاء</button>
-          <button type="button" onclick="saveEditedSession()" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-1.5 rounded-lg text-xs font-semibold" id="btn-modal-save">حفظ والتحديث</button>
+            <div class="field">
+                <label data-i18n="from">
+                    De
+                </label>
+
+                <input type="time" id="deleteStart" value="13:00">
+            </div>
+
+            <div class="field">
+                <label data-i18n="to">
+                    À
+                </label>
+
+                <input type="time" id="deleteEnd" value="14:00">
+            </div>
+
+            <div class="field">
+                <label>&nbsp;</label>
+
+                <button class="btn danger" onclick="deleteTimePeriod()">
+                    🗑️ <span data-i18n="delete">Supprimer</span>
+                </button>
+            </div>
+
         </div>
-      </div>
+
+
+        <div style="margin-top:15px">
+
+            <div
+                style="font-size:13px;color:var(--muted);margin-bottom:8px"
+                data-i18n="deletedPeriods"
+            >
+                Périodes supprimées
+            </div>
+
+            <div id="deletedList" class="deleted-list"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SUBJECT COLORS -->
+
+    <section class="panel subject-panel no-print">
+
+        <div class="panel-title" data-i18n="colors">
+            Couleurs des matières
+        </div>
+
+        <div id="subjectList" class="subject-list"></div>
+
+    </section>
+
+
+    <!-- ACTIONS -->
+
+    <section class="panel actions-panel no-print">
+
+        <div class="panel-title" data-i18n="days">
+            Jours
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+
+            <button class="btn" onclick="addDay()">
+                ＋ <span data-i18n="addDay">Ajouter un jour</span>
+            </button>
+
+            <button class="btn danger" onclick="removeDay()">
+                − <span data-i18n="removeDay">Supprimer le dernier jour</span>
+            </button>
+
+            <button class="btn" onclick="newTimetable()">
+                🔄 <span data-i18n="new">Nouveau tableau</span>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- TIMETABLE -->
+
+    <section class="panel">
+
+        <div
+            id="printTitle"
+            style="
+                text-align:center;
+                font-size:24px;
+                font-weight:bold;
+                margin-bottom:18px;
+            "
+        >
+            YAS! Timetable
+        </div>
+
+        <div class="table-wrapper">
+
+            <table
+                id="timetable"
+                class="timetable"
+            >
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- LESSON MODAL -->
+
+<div id="lessonModal" class="modal-overlay">
+
+    <div class="modal">
+
+        <h2 id="modalTitle">
+            Ajouter une séance
+        </h2>
+
+        <div class="modal-grid">
+
+            <div class="field">
+                <label data-i18n="day">
+                    Jour
+                </label>
+
+                <select id="lessonDay"></select>
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="subject">
+                    Matière
+                </label>
+
+                <input
+                    type="text"
+                    id="lessonSubject"
+                    list="subjectOptions"
+                    placeholder="Math"
+                >
+
+                <datalist id="subjectOptions"></datalist>
+
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="start">
+                    Début
+                </label>
+
+                <input
+                    type="time"
+                    id="lessonStart"
+                    value="08:00"
+                >
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="end">
+                    Fin
+                </label>
+
+                <input
+                    type="time"
+                    id="lessonEnd"
+                    value="09:00"
+                >
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="teacher">
+                    Professeur
+                </label>
+
+                <input
+                    type="text"
+                    id="lessonTeacher"
+                    placeholder="..."
+                >
+            </div>
+
+
+            <div class="field">
+                <label data-i18n="room">
+                    Salle / Classe
+                </label>
+
+                <input
+                    type="text"
+                    id="lessonRoom"
+                    placeholder="..."
+                >
+            </div>
+
+
+            <div class="field modal-full">
+
+                <label data-i18n="color">
+                    Couleur
+                </label>
+
+                <div class="color-picker-row">
+
+                    <input
+                        type="color"
+                        id="lessonColor"
+                        class="color-picker"
+                        value="#d9c5e8"
+                    >
+
+                    <span
+                        id="colorHex"
+                        style="font-size:13px;color:#888"
+                    >
+                        #d9c5e8
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="btn danger"
+                id="deleteLessonBtn"
+                onclick="deleteCurrentLesson()"
+                style="display:none"
+            >
+                🗑️ <span data-i18n="delete">Supprimer</span>
+            </button>
+
+            <button
+                class="btn"
+                onclick="closeLessonModal()"
+            >
+                <span data-i18n="cancel">Annuler</span>
+            </button>
+
+            <button
+                class="btn primary"
+                onclick="saveLesson()"
+            >
+                ✓ <span data-i18n="confirm">Enregistrer</span>
+            </button>
+
+        </div>
+
     </div>
-  </div>
 
-  <!-- Application Logic & Scripts -->
-  <script>
-    // --- Translation Data (5 Languages Complete) ---
-    const translations = {
-      ar: {
-        dir: 'rtl',
-        appTitle: 'مُصمم استعمال الزمن',
-        manageHeader: 'إدارة الجدول',
-        autosaved: 'حفظ تلقائي',
-        scheduleTitle: 'عنوان استعمال الزمن',
-        duplicate: 'نسخ',
-        delete: 'حذف',
-        timingHeader: 'التوقيت والأيام والشكل',
-        daysCount: 'عدد أيام الدراسة',
-        layoutMode: 'اتجاه وشكل الجدول',
-        layoutVertical: 'طولي (الأيام أعمدة / الوقت أسطر)',
-        layoutHorizontal: 'عرضي (الأيام أسطر / الوقت أعمدة)',
-        startTime: 'بداية اليوم',
-        endTime: 'نهاية اليوم',
-        slotDuration: 'تقسيم الخانات التلقائي',
-        addSessionHeader: 'إضافة حصة جديدة',
-        subjectName: 'اسم المادة',
-        teacherRoom: 'الأستاذ / القاعة',
-        selectDay: 'اليوم',
-        timeType: 'نوع توقيت الحصة',
-        timeSlotOpt: 'حسب خانات الجدول التلقائية',
-        timeCustomOpt: 'توقيت مخصص ودقيق (بداية ونهاية)',
-        selectTime: 'الفترة الزمنية',
-        customStart: 'وقت البداية',
-        customEnd: 'وقت النهاية',
-        sessionColor: 'لون الحصة (عجلة الألوان)',
-        addSessionBtn: 'إضافة الحصة',
-        designHeader: 'التخصيص والتصميم',
-        themeStyle: 'نمط التنسيق',
-        smartFill: 'تعبئة نموذجية',
-        timeTh: 'الوقت',
-        dayTh: 'اليوم / الوقت',
-        conflictMsg: 'تنبيه: يوجد تعارض زمني بين الحصص المضافة!',
-        editModalTitle: 'تعديل الحصة',
-        editTimeType: 'تعديل نوع التوقيت',
-        btnSave: 'حفظ والتحديث',
-        btnCancel: 'إلغاء',
-        days: ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد']
-      },
-      darija: {
-        dir: 'ltr',
-        appTitle: 'Emploi du Temps Maker',
-        manageHeader: 'Idarat L-Ghadwal',
-        autosaved: 'Auto-Saved',
-        scheduleTitle: 'Anwan L-Emploi',
-        duplicate: 'Copier',
-        delete: 'Msa7',
-        timingHeader: 'Tawqit, Ayyam w Shape',
-        daysCount: 'Ayyam Ddirasa',
-        layoutMode: 'Ittijah L-Tableau',
-        layoutVertical: 'Tawli (Ayyam Columns)',
-        layoutHorizontal: '3ardi (Ayyam Rows)',
-        startTime: 'Bdayat L-Yawm',
-        endTime: 'Nihayat L-Yawm',
-        slotDuration: 'Taqsim L-Khanat',
-        addSessionHeader: 'Zid Hissa Jdida',
-        subjectName: 'Smiyat L-Madda',
-        teacherRoom: 'Oustadh / Qaa',
-        selectDay: 'L-Yawm',
-        timeType: 'Naw3 Waqt L-Hissa',
-        timeSlotOpt: 'Hasab Khanat L-Tableau',
-        timeCustomOpt: 'Waqt Khas (Start & End)',
-        selectTime: 'L-Fatra L-Zamaniyya',
-        customStart: 'Waqt L-Bdaya',
-        customEnd: 'Waqt L-Nihaya',
-        sessionColor: 'Lawn L-Hissa (Color Wheel)',
-        addSessionBtn: 'Zid L-Hissa',
-        designHeader: 'Tazyin w Design',
-        themeStyle: 'Style L-Tableau',
-        smartFill: 'T3biya Taba9iya',
-        timeTh: 'L-Waqt',
-        dayTh: 'L-Yawm / Waqt',
-        conflictMsg: 'Tandhir: Kayn Ta9atou3 f L-Owaqat!',
-        editModalTitle: 'T3dil L-Hissa',
-        editTimeType: 'T3dil Naw3 L-Waqt',
-        btnSave: 'Hfid w T3dil',
-        btnCancel: 'Annuler',
-        days: ['L-Tneen', 'L-Tlat', 'L-Arba', 'L-Khmis', 'L-Jumaa', 'L-Sabt', 'L-Ahad']
-      },
-      fr: {
-        dir: 'ltr',
-        appTitle: 'Créateur Emploi du Temps',
-        manageHeader: 'Gestion du Planning',
-        autosaved: 'Enregistré',
-        scheduleTitle: 'Titre de l\'emploi',
-        duplicate: 'Dupliquer',
-        delete: 'Supprimer',
-        timingHeader: 'Horaires, Jours & Format',
-        daysCount: 'Jours d\'études',
-        layoutMode: 'Orientation du Tableau',
-        layoutVertical: 'Vertical (Jours en colonnes)',
-        layoutHorizontal: 'Horizontal (Jours en lignes)',
-        startTime: 'Début de journée',
-        endTime: 'Fin de journée',
-        slotDuration: 'Division des créneaux',
-        addSessionHeader: 'Ajouter un cours',
-        subjectName: 'Nom de la matière',
-        teacherRoom: 'Prof / Salle',
-        selectDay: 'Jour',
-        timeType: 'Type d\'horaire',
-        timeSlotOpt: 'Selon créneaux standard',
-        timeCustomOpt: 'Horaire personnalisé (Début/Fin)',
-        selectTime: 'Créneau horaire',
-        customStart: 'Heure de début',
-        customEnd: 'Heure de fin',
-        sessionColor: 'Couleur (Roue des couleurs)',
-        addSessionBtn: 'Ajouter le cours',
-        designHeader: 'Personnalisation',
-        themeStyle: 'Style du tableau',
-        smartFill: 'Remplissage Démo',
-        timeTh: 'Heure',
-        dayTh: 'Jour / Heure',
-        conflictMsg: 'Attention : Conflit d\'horaires détecté !',
-        editModalTitle: 'Modifier le cours',
-        editTimeType: 'Modifier le type d\'horaire',
-        btnSave: 'Enregistrer',
-        btnCancel: 'Annuler',
-        days: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-      },
-      es: {
-        dir: 'ltr',
-        appTitle: 'Generador de Horarios',
-        manageHeader: 'Gestión del Horario',
-        autosaved: 'Guardado',
-        scheduleTitle: 'Título del Horario',
-        duplicate: 'Duplicar',
-        delete: 'Eliminar',
-        timingHeader: 'Horarios, Días y Formato',
-        daysCount: 'Días lectivos',
-        layoutMode: 'Orientación del Tabla',
-        layoutVertical: 'Vertical (Días en columnas)',
-        layoutHorizontal: 'Horizontal (Días en filas)',
-        startTime: 'Inicio del día',
-        endTime: 'Fin del día',
-        slotDuration: 'División de franjas',
-        addSessionHeader: 'Añadir asignatura',
-        subjectName: 'Asignatura',
-        teacherRoom: 'Profesor / Aula',
-        selectDay: 'Día',
-        timeType: 'Tipo de Horario',
-        timeSlotOpt: 'Según franjas estándar',
-        timeCustomOpt: 'Horario personalizado (Inicio/Fin)',
-        selectTime: 'Franja horaria',
-        customStart: 'Hora de inicio',
-        customEnd: 'Hora de fin',
-        sessionColor: 'Color (Rueda de colores)',
-        addSessionBtn: 'Añadir clase',
-        designHeader: 'Personalización',
-        themeStyle: 'Estilo visual',
-        smartFill: 'Relleno Inteligente',
-        timeTh: 'Hora',
-        dayTh: 'Día / Hora',
-        conflictMsg: '¡Advertencia: Solapamiento de horarios!',
-        editModalTitle: 'Editar clase',
-        editTimeType: 'Editar tipo de horario',
-        btnSave: 'Guardar cambios',
-        btnCancel: 'Cancelar',
-        days: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-      },
-      en: {
-        dir: 'ltr',
-        appTitle: 'Timetable Maker Pro',
-        manageHeader: 'Schedule Control',
-        autosaved: 'Auto-saved',
-        scheduleTitle: 'Timetable Title',
-        duplicate: 'Duplicate',
-        delete: 'Delete',
-        timingHeader: 'Timing, Days & Layout',
-        daysCount: 'School Days',
-        layoutMode: 'Grid Orientation',
-        layoutVertical: 'Vertical (Days in columns)',
-        layoutHorizontal: 'Horizontal (Days in rows)',
-        startTime: 'Start Time',
-        endTime: 'End Time',
-        slotDuration: 'Slot Interval',
-        addSessionHeader: 'Add New Class',
-        subjectName: 'Subject Name',
-        teacherRoom: 'Teacher / Room',
-        selectDay: 'Day',
-        timeType: 'Time Selection Mode',
-        timeSlotOpt: 'Standard Grid Slots',
-        timeCustomOpt: 'Custom Exact Time (Start & End)',
-        selectTime: 'Time Slot',
-        customStart: 'Start Time',
-        customEnd: 'End Time',
-        sessionColor: 'Class Color (Color Wheel)',
-        addSessionBtn: 'Add Class',
-        designHeader: 'Customization',
-        themeStyle: 'Table Theme',
-        smartFill: 'Sample Fill',
-        timeTh: 'Time',
-        dayTh: 'Day / Time',
-        conflictMsg: 'Warning: Time overlap conflict detected!',
-        editModalTitle: 'Edit Class',
-        editTimeType: 'Change Time Selection',
-        btnSave: 'Save & Update',
-        btnCancel: 'Cancel',
-        days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-      }
-    };
+</div>
 
-    // --- State Management ---
-    let currentLang = 'ar';
-    let appData = {
-      activeId: 'default',
-      timetables: {
-        'default': {
-          id: 'default',
-          title: 'استعمال الزمن - الفصل الأول',
-          daysCount: 6,
-          layoutMode: 'vertical', // 'vertical' or 'horizontal'
-          startTime: '08:00',
-          endTime: '18:00',
-          slotDuration: 60,
-          theme: 'theme-modern',
-          sessions: []
+
+<div id="toast" class="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   DATA
+========================================================= */
+
+const translations = {
+
+    fr: {
+        addLesson:"Ajouter",
+        save:"Sauvegarder",
+        print:"Imprimer",
+        settings:"Paramètres",
+        language:"Langue",
+        startDay:"Début de la journée",
+        endDay:"Fin de la journée",
+        slot:"Durée d'une tranche",
+        deletePeriod:"Supprimer une période vide",
+        from:"De",
+        to:"À",
+        delete:"Supprimer",
+        deletedPeriods:"Périodes supprimées",
+        colors:"Couleurs des matières",
+        days:"Jours",
+        addDay:"Ajouter un jour",
+        removeDay:"Supprimer le dernier jour",
+        new:"Nouveau tableau",
+        day:"Jour",
+        subject:"Matière",
+        start:"Début",
+        end:"Fin",
+        teacher:"Professeur",
+        room:"Salle / Classe",
+        color:"Couleur",
+        cancel:"Annuler",
+        confirm:"Enregistrer"
+    },
+
+    en: {
+        addLesson:"Add",
+        save:"Save",
+        print:"Print",
+        settings:"Settings",
+        language:"Language",
+        startDay:"Day start",
+        endDay:"Day end",
+        slot:"Time slot",
+        deletePeriod:"Delete empty period",
+        from:"From",
+        to:"To",
+        delete:"Delete",
+        deletedPeriods:"Deleted periods",
+        colors:"Subject colors",
+        days:"Days",
+        addDay:"Add day",
+        removeDay:"Remove last day",
+        new:"New timetable",
+        day:"Day",
+        subject:"Subject",
+        start:"Start",
+        end:"End",
+        teacher:"Teacher",
+        room:"Room / Class",
+        color:"Color",
+        cancel:"Cancel",
+        confirm:"Save"
+    },
+
+    es: {
+        addLesson:"Añadir",
+        save:"Guardar",
+        print:"Imprimir",
+        settings:"Configuración",
+        language:"Idioma",
+        startDay:"Inicio del día",
+        endDay:"Fin del día",
+        slot:"Duración",
+        deletePeriod:"Eliminar período vacío",
+        from:"Desde",
+        to:"Hasta",
+        delete:"Eliminar",
+        deletedPeriods:"Períodos eliminados",
+        colors:"Colores de asignaturas",
+        days:"Días",
+        addDay:"Añadir día",
+        removeDay:"Eliminar último día",
+        new:"Nuevo horario",
+        day:"Día",
+        subject:"Asignatura",
+        start:"Inicio",
+        end:"Fin",
+        teacher:"Profesor",
+        room:"Aula / Clase",
+        color:"Color",
+        cancel:"Cancelar",
+        confirm:"Guardar"
+    },
+
+    ar: {
+        addLesson:"إضافة",
+        save:"حفظ",
+        print:"طباعة",
+        settings:"الإعدادات",
+        language:"اللغة",
+        startDay:"بداية اليوم",
+        endDay:"نهاية اليوم",
+        slot:"مدة الخانة",
+        deletePeriod:"حذف فترة فارغة",
+        from:"من",
+        to:"إلى",
+        delete:"حذف",
+        deletedPeriods:"الفترات المحذوفة",
+        colors:"ألوان المواد",
+        days:"الأيام",
+        addDay:"إضافة يوم",
+        removeDay:"حذف آخر يوم",
+        new:"جدول جديد",
+        day:"اليوم",
+        subject:"المادة",
+        start:"البداية",
+        end:"النهاية",
+        teacher:"الأستاذ",
+        room:"القسم / القاعة",
+        color:"اللون",
+        cancel:"إلغاء",
+        confirm:"حفظ"
+    },
+
+    darija: {
+        addLesson:"زيد حصة",
+        save:"حفظ",
+        print:"طبع",
+        settings:"الإعدادات",
+        language:"اللغة",
+        startDay:"بداية النهار",
+        endDay:"نهاية النهار",
+        slot:"مدة الخانة",
+        deletePeriod:"مسح فترة خاوية",
+        from:"من",
+        to:"حتى",
+        delete:"مسح",
+        deletedPeriods:"الفترات الممسوحة",
+        colors:"ألوان المواد",
+        days:"الأيام",
+        addDay:"زيد نهار",
+        removeDay:"مسح آخر نهار",
+        new:"جدول جديد",
+        day:"النهار",
+        subject:"المادة",
+        start:"البداية",
+        end:"النهاية",
+        teacher:"الأستاذ",
+        room:"القسم / القاعة",
+        color:"اللون",
+        cancel:"إلغاء",
+        confirm:"حفظ"
+    }
+};
+
+
+/* =========================================================
+   DEFAULT DATA
+========================================================= */
+
+let state = {
+
+    language: "fr",
+
+    dayStart: "08:00",
+
+    dayEnd: "18:00",
+
+    slotDuration: 60,
+
+    days: [
+        "Lundi",
+        "Mardi",
+        "Mercredi",
+        "Jeudi",
+        "Vendredi",
+        "Samedi"
+    ],
+
+    lessons: [],
+
+    deletedPeriods: [],
+
+    colors: {
+
+        "Math": "#c9dcf2",
+
+        "Français": "#f3c7d9",
+
+        "English": "#d9c8ee",
+
+        "العربية": "#e9b6b6",
+
+        "التربية الإسلامية": "#f4df9e",
+
+        "Philosophie": "#d9c5b2",
+
+        "EPS": "#a8c7b0",
+
+        "Physique": "#b4c9e8",
+
+        "Chimie": "#b4c9e8",
+
+        "SVT": "#c8dfc5"
+
+    }
+
+};
+
+
+let editingLessonId = null;
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    loadData();
+
+    document.getElementById("language").value = state.language;
+
+    document.getElementById("dayStart").value = state.dayStart;
+
+    document.getElementById("dayEnd").value = state.dayEnd;
+
+    document.getElementById("slotDuration").value = state.slotDuration;
+
+    applyLanguage();
+
+    renderSubjectColors();
+
+    renderTimetable();
+
+    updateDeletedList();
+
+});
+
+
+/* =========================================================
+   LANGUAGE
+========================================================= */
+
+function changeLanguage(lang) {
+
+    state.language = lang;
+
+    applyLanguage();
+
+    renderTimetable();
+
+    saveData(false);
+}
+
+
+function applyLanguage() {
+
+    const lang = state.language;
+
+    document.documentElement.lang =
+        lang === "darija" ? "ar" : lang;
+
+    if (lang === "ar" || lang === "darija") {
+
+        document.documentElement.dir = "rtl";
+
+        document.body.style.direction = "rtl";
+
+    } else {
+
+        document.documentElement.dir = "ltr";
+
+        document.body.style.direction = "ltr";
+
+    }
+
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+
+        const key = el.dataset.i18n;
+
+        if (translations[lang][key]) {
+
+            el.textContent = translations[lang][key];
+
         }
-      }
-    };
 
-    // Load Data
-    function initData() {
-      const saved = localStorage.getItem('timetable_pwa_v2_data');
-      if (saved) {
-        try { appData = JSON.parse(saved); } catch(e) {}
-      }
-      document.getElementById('footer-date').innerText = new Date().toLocaleDateString();
-      updateTimetableDropdown();
-      applyLanguage(currentLang);
-      renderGrid();
-    }
+    });
 
-    function saveData() {
-      localStorage.setItem('timetable_pwa_v2_data', JSON.stringify(appData));
-    }
+}
 
-    function getActiveTimetable() {
-      return appData.timetables[appData.activeId];
-    }
 
-    // --- Language Translation Application ---
-    function changeLanguage(langKey) {
-      currentLang = langKey;
-      applyLanguage(langKey);
-      renderGrid();
-    }
+/* =========================================================
+   TIME FUNCTIONS
+========================================================= */
 
-    function applyLanguage(langKey) {
-      const t = translations[langKey];
-      document.documentElement.dir = t.dir;
-      document.documentElement.lang = langKey;
+function timeToMinutes(time) {
 
-      document.getElementById('app-title').innerText = t.appTitle;
-      document.getElementById('txt-manage-header').innerHTML = `<i class="fa-solid fa-sliders text-indigo-500 ml-2"></i> ${t.manageHeader}`;
-      document.getElementById('txt-autosaved').innerText = t.autosaved;
-      document.getElementById('lbl-schedule-title').innerText = t.scheduleTitle;
-      document.getElementById('btn-duplicate').innerText = t.duplicate;
-      document.getElementById('btn-delete').innerText = t.delete;
-      document.getElementById('txt-timing-header').innerText = t.timingHeader;
-      document.getElementById('lbl-days-count').innerText = t.daysCount;
-      document.getElementById('lbl-layout-mode').innerText = t.layoutMode;
-      document.getElementById('opt-layout-vertical').innerText = t.layoutVertical;
-      document.getElementById('opt-layout-horizontal').innerText = t.layoutHorizontal;
-      document.getElementById('lbl-start-time').innerText = t.startTime;
-      document.getElementById('lbl-end-time').innerText = t.endTime;
-      document.getElementById('lbl-slot-duration').innerText = t.slotDuration;
-      document.getElementById('txt-add-session-header').innerText = t.addSessionHeader;
-      document.getElementById('lbl-subject-name').innerText = t.subjectName;
-      document.getElementById('lbl-teacher-room').innerText = t.teacherRoom;
-      document.getElementById('lbl-select-day').innerText = t.selectDay;
-      document.getElementById('lbl-time-type').innerText = t.timeType;
-      document.getElementById('opt-time-slot').innerText = t.timeSlotOpt;
-      document.getElementById('opt-time-custom').innerText = t.timeCustomOpt;
-      document.getElementById('lbl-select-time').innerText = t.selectTime;
-      document.getElementById('lbl-custom-start').innerText = t.customStart;
-      document.getElementById('lbl-custom-end').innerText = t.customEnd;
-      document.getElementById('lbl-session-color').innerText = t.sessionColor;
-      document.getElementById('btn-add-session').innerText = t.addSessionBtn;
-      document.getElementById('txt-design-header').innerText = t.designHeader;
-      document.getElementById('lbl-theme-style').innerText = t.themeStyle;
-      document.getElementById('btn-smart-fill').innerText = t.smartFill;
-      document.getElementById('th-time').innerText = t.timeTh;
-      document.getElementById('txt-conflict-msg').innerText = t.conflictMsg;
+    const [h,m] = time.split(":").map(Number);
 
-      // Edit Modal Translations
-      document.getElementById('txt-edit-modal-title').innerText = t.editModalTitle;
-      document.getElementById('lbl-edit-subject').innerText = t.subjectName;
-      document.getElementById('lbl-edit-teacher').innerText = t.teacherRoom;
-      document.getElementById('lbl-edit-time-type').innerText = t.editTimeType;
-      document.getElementById('opt-edit-time-slot').innerText = t.timeSlotOpt;
-      document.getElementById('opt-edit-time-custom').innerText = t.timeCustomOpt;
-      document.getElementById('lbl-edit-slot').innerText = t.selectTime;
-      document.getElementById('lbl-edit-custom-start').innerText = t.customStart;
-      document.getElementById('lbl-edit-custom-end').innerText = t.customEnd;
-      document.getElementById('lbl-edit-color').innerText = t.sessionColor;
-      document.getElementById('btn-modal-save').innerText = t.btnSave;
-      document.getElementById('btn-modal-cancel').innerText = t.btnCancel;
-      document.getElementById('btn-modal-delete').innerText = t.delete;
+    return h * 60 + m;
+}
 
-      // Populate Select Day Options
-      const daySelect = document.getElementById('input-day');
-      daySelect.innerHTML = '';
-      const currentDays = t.days.slice(0, getActiveTimetable().daysCount);
-      currentDays.forEach((day, index) => {
-        const opt = document.createElement('option');
-        opt.value = index;
-        opt.innerText = day;
-        daySelect.appendChild(opt);
-      });
-    }
 
-    // Toggle Custom Time vs Slot Inputs
-    function toggleTimeInputs(mode) {
-      if (mode === 'add') {
-        const type = document.getElementById('input-time-type').value;
-        document.getElementById('wrapper-slot-select').classList.toggle('hidden', type === 'custom');
-        document.getElementById('wrapper-custom-time').classList.toggle('hidden', type === 'slot');
-      } else {
-        const type = document.getElementById('edit-time-type').value;
-        document.getElementById('wrapper-edit-slot').classList.toggle('hidden', type === 'custom');
-        document.getElementById('wrapper-edit-custom').classList.toggle('hidden', type === 'slot');
-      }
-    }
+function minutesToTime(minutes) {
 
-    // Color Helpers
-    function setFormColor(hex) { document.getElementById('input-color-picker').value = hex; }
-    function setEditFormColor(hex) { document.getElementById('edit-color-picker').value = hex; }
+    minutes = ((minutes % 1440) + 1440) % 1440;
 
-    // --- Timetable Control & Actions ---
-    function updateTimetableDropdown() {
-      const select = document.getElementById('timetable-select');
-      select.innerHTML = '';
-      Object.keys(appData.timetables).forEach(id => {
-        const opt = document.createElement('option');
-        opt.value = id;
-        opt.innerText = appData.timetables[id].title;
-        if (id === appData.activeId) opt.selected = true;
-        select.appendChild(opt);
-      });
-    }
+    const h = Math.floor(minutes / 60)
+        .toString()
+        .padStart(2,"0");
 
-    function switchTimetable(id) {
-      appData.activeId = id;
-      saveData();
-      const current = getActiveTimetable();
-      document.getElementById('schedule-title-input').value = current.title;
-      document.getElementById('days-count-select').value = current.daysCount;
-      document.getElementById('layout-mode-select').value = current.layoutMode || 'vertical';
-      document.getElementById('start-time').value = current.startTime;
-      document.getElementById('end-time').value = current.endTime;
-      document.getElementById('slot-duration').value = current.slotDuration;
-      document.getElementById('theme-style-select').value = current.theme || 'theme-modern';
-      
-      applyLanguage(currentLang);
-      renderGrid();
-    }
+    const m = (minutes % 60)
+        .toString()
+        .padStart(2,"0");
 
-    function createNewTimetablePrompt() {
-      const title = prompt("أدخل اسم استعمال الزمن الجديد / Timetable Name:", "استعمال زمن جديد");
-      if (!title) return;
-      const newId = 'tt_' + Date.now();
-      appData.timetables[newId] = {
-        id: newId,
-        title: title,
-        daysCount: 6,
-        layoutMode: 'vertical',
-        startTime: '08:00',
-        endTime: '18:00',
-        slotDuration: 60,
-        theme: 'theme-modern',
-        sessions: []
-      };
-      appData.activeId = newId;
-      saveData();
-      updateTimetableDropdown();
-      switchTimetable(newId);
-    }
+    return `${h}:${m}`;
+}
 
-    function duplicateCurrentTimetable() {
-      const current = getActiveTimetable();
-      const newId = 'tt_' + Date.now();
-      const newTable = JSON.parse(JSON.stringify(current));
-      newTable.id = newId;
-      newTable.title += " (نسخة)";
-      appData.timetables[newId] = newTable;
-      appData.activeId = newId;
-      saveData();
-      updateTimetableDropdown();
-      switchTimetable(newId);
-    }
 
-    function deleteCurrentTimetable() {
-      if (Object.keys(appData.timetables).length <= 1) {
-        alert("لا يمكن حذف هذا الجدول لأنه الوحيد المتبقي!");
-        return;
-      }
-      if (confirm("هل أنت تأكد من رغبتك في حذف هذا الجدول؟")) {
-        delete appData.timetables[appData.activeId];
-        appData.activeId = Object.keys(appData.timetables)[0];
-        saveData();
-        updateTimetableDropdown();
-        switchTimetable(appData.activeId);
-      }
-    }
+/* =========================================================
+   GET TIME SLOTS
+========================================================= */
 
-    function updateScheduleTitle(val) {
-      const current = getActiveTimetable();
-      current.title = val;
-      document.getElementById('display-schedule-title').innerText = val;
-      saveData();
-      updateTimetableDropdown();
-    }
+function getTimeSlots() {
 
-    function updateDaysCount(val) {
-      const current = getActiveTimetable();
-      current.daysCount = parseInt(val);
-      saveData();
-      applyLanguage(currentLang);
-      renderGrid();
-    }
+    const start = timeToMinutes(
+        document.getElementById("dayStart").value
+    );
 
-    function updateLayoutMode(val) {
-      const current = getActiveTimetable();
-      current.layoutMode = val;
-      saveData();
-      renderGrid();
-    }
+    const end = timeToMinutes(
+        document.getElementById("dayEnd").value
+    );
 
-    function changeThemeStyle(styleName) {
-      const current = getActiveTimetable();
-      current.theme = styleName;
-      saveData();
-      renderGrid();
-    }
+    const duration = Number(
+        document.getElementById("slotDuration").value
+    );
 
-    // --- Grid Calculations & Time Helpers ---
-    function getTimeSlots(startTimeStr, endTimeStr, durationMin) {
-      const slots = [];
-      let [h, m] = startTimeStr.split(':').map(Number);
-      let [endH, endM] = endTimeStr.split(':').map(Number);
-      
-      let currentMin = h * 60 + m;
-      const totalEndMin = endH * 60 + endM;
+    let slots = [];
 
-      while (currentMin + durationMin <= totalEndMin) {
-        let startH = Math.floor(currentMin / 60).toString().padStart(2, '0');
-        let startM = (currentMin % 60).toString().padStart(2, '0');
-        
-        let nextMin = currentMin + durationMin;
-        let finishH = Math.floor(nextMin / 60).toString().padStart(2, '0');
-        let finishM = (nextMin % 60).toString().padStart(2, '0');
+    for (
+        let t = start;
+        t < end;
+        t += duration
+    ) {
+
+        let slotEnd = Math.min(t + duration, end);
 
         slots.push({
-          start: `${startH}:${startM}`,
-          end: `${finishH}:${finishM}`,
-          label: `${startH}:${startM} - ${finishH}:${finishM}`
+            start: minutesToTime(t),
+            end: minutesToTime(slotEnd)
         });
 
-        currentMin = nextMin;
-      }
-      return slots;
     }
 
-    function timeToMinutes(tStr) {
-      const [h, m] = tStr.split(':').map(Number);
-      return h * 60 + m;
-    }
+    return slots;
+}
 
-    // Checking whether session matches a slot or day
-    function sessionMatches(session, dayIndex, slot, slotsList) {
-      if (session.day !== dayIndex) return false;
 
-      if (session.timeType === 'custom') {
-        const sStart = timeToMinutes(session.customStart);
-        const sEnd = timeToMinutes(session.customEnd);
-        const slotStart = timeToMinutes(slot.start);
-        const slotEnd = timeToMinutes(slot.end);
+/* =========================================================
+   DELETE PERIOD
+========================================================= */
 
-        // Overlap condition
-        return (sStart < slotEnd && sEnd > slotStart);
-      } else {
-        return session.slot === slotsList.indexOf(slot);
-      }
-    }
+function deleteTimePeriod() {
 
-    // --- RENDER GRID (Vertical vs Horizontal Layout) ---
-    function renderGrid() {
-      const current = getActiveTimetable();
-      const t = translations[currentLang];
+    const start =
+        document.getElementById("deleteStart").value;
 
-      document.getElementById('schedule-title-input').value = current.title;
-      document.getElementById('display-schedule-title').innerText = current.title;
-      document.getElementById('layout-mode-select').value = current.layoutMode || 'vertical';
+    const end =
+        document.getElementById("deleteEnd").value;
 
-      const tableContainer = document.getElementById('timetable-print-container');
-      tableContainer.className = `bg-white p-6 rounded-xl shadow-md border border-slate-200 print-area min-h-[600px] flex flex-col justify-between ${current.theme || 'theme-modern'}`;
+    if (!start || !end) {
 
-      const startTime = document.getElementById('start-time').value;
-      const endTime = document.getElementById('end-time').value;
-      const duration = parseInt(document.getElementById('slot-duration').value);
+        showToast("Choisissez les deux horaires.");
 
-      current.startTime = startTime;
-      current.endTime = endTime;
-      current.slotDuration = duration;
-
-      const timeSlots = getTimeSlots(startTime, endTime, duration);
-
-      // Populate Form Select Slots
-      const populateSlotSelect = (elemId) => {
-        const sel = document.getElementById(elemId);
-        sel.innerHTML = '';
-        timeSlots.forEach((slot, index) => {
-          const opt = document.createElement('option');
-          opt.value = index;
-          opt.innerText = slot.label;
-          sel.appendChild(opt);
-        });
-      };
-      populateSlotSelect('input-time-slot');
-      populateSlotSelect('edit-time-slot');
-
-      const headerRow = document.getElementById('table-header-row');
-      const tbody = document.getElementById('table-body');
-      tbody.innerHTML = '';
-      let hasConflict = false;
-
-      // MODE 1: VERTICAL (Days in Columns, Time in Rows)
-      if (current.layoutMode === 'vertical') {
-        headerRow.innerHTML = `<th class="p-2 border border-slate-200 w-24 bg-slate-100 text-slate-700">${t.timeTh}</th>`;
-        for (let d = 0; d < current.daysCount; d++) {
-          const th = document.createElement('th');
-          th.className = "p-2 border border-slate-200 text-slate-700 font-bold bg-slate-50";
-          th.innerText = t.days[d];
-          headerRow.appendChild(th);
-        }
-
-        timeSlots.forEach((slot, slotIndex) => {
-          const tr = document.createElement('tr');
-          const tdTime = document.createElement('td');
-          tdTime.className = "p-2 border border-slate-200 text-xs font-semibold bg-slate-50/50 text-slate-600";
-          tdTime.innerText = slot.label;
-          tr.appendChild(tdTime);
-
-          for (let dayIndex = 0; dayIndex < current.daysCount; dayIndex++) {
-            const td = createGridCell(dayIndex, slotIndex, slot, timeSlots, current, (conf) => { if(conf) hasConflict = true; });
-            tr.appendChild(td);
-          }
-          tbody.appendChild(tr);
-        });
-      } 
-      // MODE 2: HORIZONTAL (Days in Rows, Time in Columns)
-      else {
-        headerRow.innerHTML = `<th class="p-2 border border-slate-200 w-28 bg-slate-100 text-slate-700">${t.dayTh}</th>`;
-        timeSlots.forEach(slot => {
-          const th = document.createElement('th');
-          th.className = "p-2 border border-slate-200 text-slate-700 font-bold bg-slate-50 text-xs min-w-[100px]";
-          th.innerText = slot.label;
-          headerRow.appendChild(th);
-        });
-
-        for (let dayIndex = 0; dayIndex < current.daysCount; dayIndex++) {
-          const tr = document.createElement('tr');
-          const tdDay = document.createElement('td');
-          tdDay.className = "p-2 border border-slate-200 text-xs font-bold bg-slate-50 text-slate-700";
-          tdDay.innerText = t.days[dayIndex];
-          tr.appendChild(tdDay);
-
-          timeSlots.forEach((slot, slotIndex) => {
-            const td = createGridCell(dayIndex, slotIndex, slot, timeSlots, current, (conf) => { if(conf) hasConflict = true; });
-            tr.appendChild(td);
-          });
-          tbody.appendChild(tr);
-        }
-      }
-
-      document.getElementById('conflict-alert').classList.toggle('hidden', !hasConflict);
-      saveData();
-    }
-
-    // Helper for Cell Generation
-    function createGridCell(dayIndex, slotIndex, slot, timeSlots, current, conflictCallback) {
-      const td = document.createElement('td');
-      td.className = "p-1 border border-slate-200 align-top h-20 transition duration-150 relative min-w-[110px]";
-      
-      td.ondragover = (e) => { e.preventDefault(); td.classList.add('drag-over'); };
-      td.ondragleave = () => td.classList.remove('drag-over');
-      td.ondrop = (e) => handleDrop(e, dayIndex, slotIndex);
-
-      const matchingSessions = current.sessions.filter(s => sessionMatches(s, dayIndex, slot, timeSlots));
-
-      if (matchingSessions.length > 1) conflictCallback(true);
-
-      matchingSessions.forEach(session => {
-        const card = document.createElement('div');
-        card.draggable = true;
-        card.ondragstart = (e) => handleDragStart(e, session.id);
-        card.onclick = () => openEditModal(session.id);
-        card.className = "p-2 rounded-lg text-white text-xs shadow-sm cursor-pointer hover:shadow-md transition relative group flex flex-col justify-between h-full mb-1";
-        card.style.backgroundColor = session.color || '#3b82f6';
-
-        const displayTime = session.timeType === 'custom' 
-          ? `${session.customStart} - ${session.customEnd}` 
-          : slot.start;
-
-        card.innerHTML = `
-          <div>
-            <div class="font-bold text-xs tracking-wide leading-tight">${session.subject}</div>
-            ${session.teacher ? `<div class="text-[10px] opacity-90 mt-1"><i class="fa-solid fa-user-circle text-[9px]"></i> ${session.teacher}</div>` : ''}
-          </div>
-          <div class="text-[9px] opacity-80 mt-1 flex justify-between items-center border-t border-white/20 pt-0.5">
-            <span><i class="fa-solid fa-clock"></i> ${displayTime}</span>
-            <i class="fa-solid fa-pen text-[9px] opacity-0 group-hover:opacity-100 transition"></i>
-          </div>
-        `;
-        td.appendChild(card);
-      });
-
-      return td;
-    }
-
-    // --- Session Handlers ---
-    function handleAddSession(e) {
-      e.preventDefault();
-      const current = getActiveTimetable();
-
-      const subject = document.getElementById('input-subject').value;
-      const teacher = document.getElementById('input-teacher').value;
-      const day = parseInt(document.getElementById('input-day').value);
-      const timeType = document.getElementById('input-time-type').value;
-      const slot = parseInt(document.getElementById('input-time-slot').value);
-      const customStart = document.getElementById('input-custom-start').value;
-      const customEnd = document.getElementById('input-custom-end').value;
-      const color = document.getElementById('input-color-picker').value;
-
-      const newSession = {
-        id: 's_' + Date.now(),
-        subject,
-        teacher,
-        day,
-        timeType,
-        slot: timeType === 'slot' ? slot : null,
-        customStart: timeType === 'custom' ? customStart : null,
-        customEnd: timeType === 'custom' ? customEnd : null,
-        color
-      };
-
-      current.sessions.push(newSession);
-      document.getElementById('input-subject').value = '';
-      document.getElementById('input-teacher').value = '';
-      
-      renderGrid();
-    }
-
-    // Drag and Drop
-    function handleDragStart(e, sessionId) {
-      e.dataTransfer.setData('text/plain', sessionId);
-    }
-
-    function handleDrop(e, targetDay, targetSlot) {
-      e.preventDefault();
-      const sessionId = e.dataTransfer.getData('text/plain');
-      const current = getActiveTimetable();
-      const session = current.sessions.find(s => s.id === sessionId);
-      if (session) {
-        session.day = targetDay;
-        if (session.timeType === 'slot') {
-          session.slot = targetSlot;
-        }
-        renderGrid();
-      }
-    }
-
-    // Edit Modal Logic
-    function openEditModal(sessionId) {
-      const current = getActiveTimetable();
-      const session = current.sessions.find(s => s.id === sessionId);
-      if (!session) return;
-
-      document.getElementById('edit-session-id').value = session.id;
-      document.getElementById('edit-subject').value = session.subject;
-      document.getElementById('edit-teacher').value = session.teacher || '';
-      document.getElementById('edit-time-type').value = session.timeType || 'slot';
-      document.getElementById('edit-time-slot').value = session.slot || 0;
-      document.getElementById('edit-custom-start').value = session.customStart || '08:00';
-      document.getElementById('edit-custom-end').value = session.customEnd || '09:30';
-      document.getElementById('edit-color-picker').value = session.color || '#3b82f6';
-
-      toggleTimeInputs('edit');
-      document.getElementById('edit-modal').classList.remove('hidden');
-    }
-
-    function closeEditModal() {
-      document.getElementById('edit-modal').classList.add('hidden');
-    }
-
-    function saveEditedSession() {
-      const id = document.getElementById('edit-session-id').value;
-      const current = getActiveTimetable();
-      const session = current.sessions.find(s => s.id === id);
-
-      if (session) {
-        session.subject = document.getElementById('edit-subject').value;
-        session.teacher = document.getElementById('edit-teacher').value;
-        session.timeType = document.getElementById('edit-time-type').value;
-        session.slot = session.timeType === 'slot' ? parseInt(document.getElementById('edit-time-slot').value) : null;
-        session.customStart = session.timeType === 'custom' ? document.getElementById('edit-custom-start').value : null;
-        session.customEnd = session.timeType === 'custom' ? document.getElementById('edit-custom-end').value : null;
-        session.color = document.getElementById('edit-color-picker').value;
-        renderGrid();
-      }
-      closeEditModal();
-    }
-
-    function deleteSessionFromModal() {
-      const id = document.getElementById('edit-session-id').value;
-      const current = getActiveTimetable();
-      current.sessions = current.sessions.filter(s => s.id !== id);
-      renderGrid();
-      closeEditModal();
-    }
-
-    // --- Smart Planner Preset Fill ---
-    function generateAIPlanner() {
-      const current = getActiveTimetable();
-      if (current.sessions.length > 0 && !confirm("سيتم إضافة نموذج حصص جاهز إلى جدولك الحقيقي، هل ترغب في المتابعة؟")) {
         return;
-      }
+    }
 
-      const sampleSubjects = [
-        { name: 'الرياضيات', teacher: 'أ. الحصيني', color: '#3b82f6' },
-        { name: 'اللغة العربية', teacher: 'أ. المختار', color: '#10b981' },
-        { name: 'الفيزياء', teacher: 'د. العلي', color: '#f59e0b' },
-        { name: 'اللغة الإنجليزية', teacher: 'Mrs. Sarah', color: '#8b5cf6' },
-        { name: 'علوم الحياة والأرض', teacher: 'أ. العمراني', color: '#ec4899' },
-        { name: 'التاريخ والجغرافيا', teacher: 'أ. التازي', color: '#ef4444' }
-      ];
+    if (timeToMinutes(start) >= timeToMinutes(end)) {
 
-      current.sessions = [];
-      let sampleIndex = 0;
+        showToast("L'heure de fin doit être après l'heure de début.");
 
-      for (let day = 0; day < Math.min(current.daysCount, 5); day++) {
-        for (let slot = 0; slot < 4; slot++) {
-          if ((day + slot) % 3 === 0) continue;
-          const sub = sampleSubjects[sampleIndex % sampleSubjects.length];
-          current.sessions.push({
-            id: 's_ai_' + day + '_' + slot,
-            subject: sub.name,
-            teacher: sub.teacher,
-            day: day,
-            timeType: 'slot',
-            slot: slot,
-            color: sub.color
-          });
-          sampleIndex++;
+        return;
+    }
+
+
+    /* Check whether a lesson exists inside the deleted period */
+
+    const conflict = state.lessons.some(lesson => {
+
+        return (
+
+            timeToMinutes(lesson.start) <
+            timeToMinutes(end)
+
+            &&
+
+            timeToMinutes(lesson.end) >
+            timeToMinutes(start)
+
+        );
+
+    });
+
+
+    if (conflict) {
+
+        showToast(
+            "Impossible : une séance existe pendant cette période."
+        );
+
+        return;
+    }
+
+
+    state.deletedPeriods.push({
+        start,
+        end
+    });
+
+    renderTimetable();
+
+    updateDeletedList();
+
+    saveData(false);
+
+    showToast("Période supprimée.");
+}
+
+
+function restorePeriod(index) {
+
+    state.deletedPeriods.splice(index,1);
+
+    renderTimetable();
+
+    updateDeletedList();
+
+    saveData(false);
+}
+
+
+function isTimeDeleted(start, end) {
+
+    const s = timeToMinutes(start);
+    const e = timeToMinutes(end);
+
+    return state.deletedPeriods.some(period => {
+
+        const ps = timeToMinutes(period.start);
+        const pe = timeToMinutes(period.end);
+
+        return s >= ps && e <= pe;
+
+    });
+}
+
+
+function updateDeletedList() {
+
+    const container =
+        document.getElementById("deletedList");
+
+    container.innerHTML = "";
+
+    state.deletedPeriods.forEach((period,index) => {
+
+        const div = document.createElement("div");
+
+        div.className = "deleted-item";
+
+        div.innerHTML = `
+            ${period.start} → ${period.end}
+            <button onclick="restorePeriod(${index})">×</button>
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+/* =========================================================
+   RENDER TIMETABLE
+========================================================= */
+
+function renderTimetable() {
+
+    state.dayStart =
+        document.getElementById("dayStart").value;
+
+    state.dayEnd =
+        document.getElementById("dayEnd").value;
+
+    state.slotDuration =
+        Number(document.getElementById("slotDuration").value);
+
+
+    const table =
+        document.getElementById("timetable");
+
+    table.innerHTML = "";
+
+
+    const slots = getTimeSlots();
+
+
+    /* HEADER */
+
+    const thead =
+        document.createElement("thead");
+
+    const headerRow =
+        document.createElement("tr");
+
+
+    const emptyHeader =
+        document.createElement("th");
+
+    emptyHeader.textContent = "⏰";
+
+    headerRow.appendChild(emptyHeader);
+
+
+    state.days.forEach(day => {
+
+        const th =
+            document.createElement("th");
+
+        th.textContent = day;
+
+        headerRow.appendChild(th);
+
+    });
+
+
+    thead.appendChild(headerRow);
+
+    table.appendChild(thead);
+
+
+    /* BODY */
+
+    const tbody =
+        document.createElement("tbody");
+
+
+    /*
+       We use a normal time grid.
+       A lesson spanning several hours gets rowspan,
+       therefore it becomes ONE large merged cell.
+    */
+
+    let skip = {};
+
+    slots.forEach((slot, slotIndex) => {
+
+        const row =
+            document.createElement("tr");
+
+
+        const timeCell =
+            document.createElement("td");
+
+        timeCell.className = "time-cell";
+
+        timeCell.innerHTML =
+            `<strong>${slot.start}</strong><br>↓<br>${slot.end}`;
+
+        row.appendChild(timeCell);
+
+
+        state.days.forEach((day, dayIndex) => {
+
+            if (skip[dayIndex] > 0) {
+
+                skip[dayIndex]--;
+
+                return;
+
+            }
+
+
+            const cell =
+                document.createElement("td");
+
+            cell.className = "day-cell";
+
+
+            /*
+              Find lesson that starts exactly here.
+            */
+
+            const lesson =
+                state.lessons.find(l =>
+
+                    l.day === day
+
+                    &&
+
+                    l.start === slot.start
+
+                );
+
+
+            if (lesson) {
+
+                const lessonStart =
+                    timeToMinutes(lesson.start);
+
+                const lessonEnd =
+                    timeToMinutes(lesson.end);
+
+
+                const duration =
+                    lessonEnd - lessonStart;
+
+
+                const slotMinutes =
+                    Number(state.slotDuration);
+
+
+                /*
+                   Number of rows to merge.
+                */
+
+                let rowSpan =
+                    Math.ceil(duration / slotMinutes);
+
+
+                /*
+                   Don't merge through deleted periods.
+                */
+
+                let validRows = 0;
+
+                for (
+                    let i = slotIndex;
+                    i < slots.length;
+                    i++
+                ) {
+
+                    const current =
+                        slots[i];
+
+                    if (
+                        isTimeDeleted(
+                            current.start,
+                            current.end
+                        )
+                    ) break;
+
+
+                    const currentStart =
+                        timeToMinutes(current.start);
+
+                    if (currentStart >= lessonEnd)
+                        break;
+
+                    validRows++;
+
+                }
+
+
+                rowSpan =
+                    Math.max(1, validRows);
+
+
+                cell.rowSpan = rowSpan;
+
+
+                skip[dayIndex] =
+                    rowSpan - 1;
+
+
+                const lessonDiv =
+                    createLessonElement(lesson);
+
+
+                cell.appendChild(lessonDiv);
+
+
+            } else {
+
+                /*
+                   Check if this time belongs
+                   to a deleted period.
+                */
+
+                if (
+                    isTimeDeleted(
+                        slot.start,
+                        slot.end
+                    )
+                ) {
+
+                    cell.classList.add("deleted-time");
+
+                } else {
+
+                    cell.classList.add("empty-cell");
+
+                    cell.addEventListener(
+                        "dblclick",
+                        () => {
+
+                            openLessonModal({
+                                day,
+                                start: slot.start,
+                                end: slot.end
+                            });
+
+                        }
+                    );
+
+                }
+
+            }
+
+
+            row.appendChild(cell);
+
+        });
+
+
+        tbody.appendChild(row);
+
+    });
+
+
+    table.appendChild(tbody);
+
+}
+
+
+/* =========================================================
+   LESSON ELEMENT
+========================================================= */
+
+function createLessonElement(lesson) {
+
+    const div =
+        document.createElement("div");
+
+    div.className = "lesson";
+
+
+    const duration =
+        timeToMinutes(lesson.end)
+        -
+        timeToMinutes(lesson.start);
+
+
+    if (duration >= 120) {
+
+        div.classList.add("lesson-long");
+
+    }
+
+
+    const color =
+        lesson.color
+        ||
+        getSubjectColor(lesson.subject);
+
+
+    div.style.background = color;
+
+
+    /*
+       Calculate a readable text color.
+    */
+
+    div.style.color =
+        getContrastColor(color);
+
+
+    let info = "";
+
+    if (lesson.teacher) {
+
+        info += lesson.teacher;
+
+    }
+
+    if (lesson.room) {
+
+        if (info) info += " • ";
+
+        info += lesson.room;
+
+    }
+
+
+    div.innerHTML = `
+
+        <div class="lesson-name">
+            ${escapeHTML(lesson.subject)}
+        </div>
+
+        <div class="lesson-info">
+            ${lesson.start} – ${lesson.end}
+        </div>
+
+        ${
+            info
+            ?
+            `<div class="lesson-info">
+                ${escapeHTML(info)}
+            </div>`
+            :
+            ""
         }
-      }
 
-      renderGrid();
+    `;
+
+
+    div.onclick = () =>
+        openLessonModal(lesson);
+
+
+    return div;
+}
+
+
+/* =========================================================
+   SUBJECT COLORS
+========================================================= */
+
+function getSubjectColor(subject) {
+
+    if (!state.colors[subject]) {
+
+        state.colors[subject] =
+            generatePastelColor();
+
     }
 
-    // --- Export Functions ---
-    function exportPDF() {
-      const element = document.getElementById('timetable-print-container');
-      const opt = {
-        margin: 0.3,
-        filename: 'timetable.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
-      };
-      html2pdf().set(opt).from(element).save();
+    return state.colors[subject];
+}
+
+
+function generatePastelColor() {
+
+    const colors = [
+        "#c9dcf2",
+        "#f3c7d9",
+        "#d9c8ee",
+        "#e9b6b6",
+        "#f4df9e",
+        "#d9c5b2",
+        "#a8c7b0",
+        "#b4c9e8",
+        "#c8dfc5",
+        "#e7c9e5",
+        "#c8e2df"
+    ];
+
+    return colors[
+        Math.floor(Math.random() * colors.length)
+    ];
+}
+
+
+function renderSubjectColors() {
+
+    const container =
+        document.getElementById("subjectList");
+
+    container.innerHTML = "";
+
+
+    const subjects =
+        Object.keys(state.colors);
+
+
+    state.lessons.forEach(lesson => {
+
+        if (!subjects.includes(lesson.subject)) {
+
+            subjects.push(lesson.subject);
+
+        }
+
+    });
+
+
+    subjects.forEach(subject => {
+
+        const item =
+            document.createElement("div");
+
+        item.className = "subject-item";
+
+
+        const colorInput =
+            document.createElement("input");
+
+        colorInput.type = "color";
+
+        colorInput.className =
+            "color-circle";
+
+        colorInput.value =
+            getSubjectColor(subject);
+
+
+        colorInput.oninput = () => {
+
+            state.colors[subject] =
+                colorInput.value;
+
+
+            /*
+               Update lessons using this
+               subject unless they have
+               their own custom color.
+            */
+
+            state.lessons.forEach(lesson => {
+
+                if (
+                    lesson.subject === subject
+                    &&
+                    !lesson.customColor
+                ) {
+
+                    lesson.color =
+                        colorInput.value;
+
+                }
+
+            });
+
+
+            renderTimetable();
+
+            saveData(false);
+
+        };
+
+
+        const name =
+            document.createElement("span");
+
+        name.textContent = subject;
+
+
+        item.appendChild(colorInput);
+
+        item.appendChild(name);
+
+        container.appendChild(item);
+
+    });
+
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function openLessonModal(lesson = null) {
+
+    editingLessonId =
+        lesson ? lesson.id : null;
+
+
+    document.getElementById(
+        "lessonModal"
+    ).classList.add("show");
+
+
+    const daySelect =
+        document.getElementById("lessonDay");
+
+
+    daySelect.innerHTML = "";
+
+
+    state.days.forEach(day => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = day;
+
+        option.textContent = day;
+
+        daySelect.appendChild(option);
+
+    });
+
+
+    document.getElementById(
+        "deleteLessonBtn"
+    ).style.display =
+        lesson ? "inline-block" : "none";
+
+
+    if (lesson) {
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent =
+            "Modifier la séance";
+
+
+        document.getElementById(
+            "lessonDay"
+        ).value =
+            lesson.day;
+
+
+        document.getElementById(
+            "lessonSubject"
+        ).value =
+            lesson.subject;
+
+
+        document.getElementById(
+            "lessonStart"
+        ).value =
+            lesson.start;
+
+
+        document.getElementById(
+            "lessonEnd"
+        ).value =
+            lesson.end;
+
+
+        document.getElementById(
+            "lessonTeacher"
+        ).value =
+            lesson.teacher || "";
+
+
+        document.getElementById(
+            "lessonRoom"
+        ).value =
+            lesson.room || "";
+
+
+        document.getElementById(
+            "lessonColor"
+        ).value =
+            lesson.color ||
+            getSubjectColor(lesson.subject);
+
+
+    } else {
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent =
+            "Ajouter une séance";
+
+
+        document.getElementById(
+            "lessonDay"
+        ).value =
+            state.days[0];
+
+
+        document.getElementById(
+            "lessonSubject"
+        ).value = "";
+
+
+        document.getElementById(
+            "lessonStart"
+        ).value =
+            state.dayStart;
+
+
+        const firstSlot =
+            getTimeSlots()[0];
+
+
+        document.getElementById(
+            "lessonEnd"
+        ).value =
+            firstSlot
+            ? firstSlot.end
+            : "09:00";
+
+
+        document.getElementById(
+            "lessonTeacher"
+        ).value = "";
+
+
+        document.getElementById(
+            "lessonRoom"
+        ).value = "";
+
+
+        document.getElementById(
+            "lessonColor"
+        ).value =
+            "#d9c5e8";
+
     }
 
-    function exportPNG() {
-      const element = document.getElementById('timetable-print-container');
-      html2canvas(element, { scale: 2 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'timetable.png';
-        link.href = canvas.toDataURL('image/png');
+
+    updateColorText();
+
+}
+
+
+function closeLessonModal() {
+
+    document.getElementById(
+        "lessonModal"
+    ).classList.remove("show");
+
+    editingLessonId = null;
+
+}
+
+
+document.getElementById("lessonColor")
+.addEventListener(
+    "input",
+    updateColorText
+);
+
+
+function updateColorText() {
+
+    const color =
+        document.getElementById(
+            "lessonColor"
+        ).value;
+
+    document.getElementById(
+        "colorHex"
+    ).textContent = color;
+
+}
+
+
+/* =========================================================
+   SAVE LESSON
+========================================================= */
+
+function saveLesson() {
+
+    const day =
+        document.getElementById(
+            "lessonDay"
+        ).value;
+
+
+    const subject =
+        document.getElementById(
+            "lessonSubject"
+        ).value.trim();
+
+
+    const start =
+        document.getElementById(
+            "lessonStart"
+        ).value;
+
+
+    const end =
+        document.getElementById(
+            "lessonEnd"
+        ).value;
+
+
+    const teacher =
+        document.getElementById(
+            "lessonTeacher"
+        ).value.trim();
+
+
+    const room =
+        document.getElementById(
+            "lessonRoom"
+        ).value.trim();
+
+
+    const color =
+        document.getElementById(
+            "lessonColor"
+        ).value;
+
+
+    if (!subject) {
+
+        showToast("Veuillez entrer une matière.");
+
+        return;
+    }
+
+
+    if (
+        !start ||
+        !end ||
+        timeToMinutes(start)
+        >=
+        timeToMinutes(end)
+    ) {
+
+        showToast("Vérifiez les horaires.");
+
+        return;
+    }
+
+
+    /*
+       Check deleted period.
+    */
+
+    if (
+        state.deletedPeriods.some(period => {
+
+            return (
+
+                timeToMinutes(start)
+                <
+                timeToMinutes(period.end)
+
+                &&
+
+                timeToMinutes(end)
+                >
+                timeToMinutes(period.start)
+
+            );
+
+        })
+    ) {
+
+        showToast(
+            "Cette séance traverse une période supprimée."
+        );
+
+        return;
+    }
+
+
+    /*
+       Check overlap with other lessons.
+    */
+
+    const overlap =
+        state.lessons.some(existing => {
+
+            if (
+                editingLessonId
+                &&
+                existing.id === editingLessonId
+            ) {
+                return false;
+            }
+
+
+            if (existing.day !== day) {
+
+                return false;
+
+            }
+
+
+            const a =
+                timeToMinutes(start);
+
+            const b =
+                timeToMinutes(end);
+
+            const c =
+                timeToMinutes(existing.start);
+
+            const d =
+                timeToMinutes(existing.end);
+
+
+            return a < d && b > c;
+
+        });
+
+
+    if (overlap) {
+
+        showToast(
+            "Cette séance chevauche une autre séance."
+        );
+
+        return;
+    }
+
+
+    /*
+       If editing
+    */
+
+    if (editingLessonId) {
+
+        const lesson =
+            state.lessons.find(
+                l => l.id === editingLessonId
+            );
+
+
+        if (lesson) {
+
+            lesson.day = day;
+
+            lesson.subject = subject;
+
+            lesson.start = start;
+
+            lesson.end = end;
+
+            lesson.teacher = teacher;
+
+            lesson.room = room;
+
+            lesson.color = color;
+
+            lesson.customColor = true;
+
+        }
+
+    }
+
+    else {
+
+        state.lessons.push({
+
+            id:
+                Date.now().toString(),
+
+            day,
+
+            subject,
+
+            start,
+
+            end,
+
+            teacher,
+
+            room,
+
+            color,
+
+            customColor: true
+
+        });
+
+    }
+
+
+    /*
+       Automatically create a subject color
+       if necessary.
+    */
+
+    if (!state.colors[subject]) {
+
+        state.colors[subject] =
+            color;
+
+    }
+
+
+    renderSubjectColors();
+
+    renderTimetable();
+
+    saveData(false);
+
+    closeLessonModal();
+
+    showToast("Séance enregistrée.");
+
+}
+
+
+/* =========================================================
+   DELETE LESSON
+========================================================= */
+
+function deleteCurrentLesson() {
+
+    if (!editingLessonId)
+        return;
+
+
+    state.lessons =
+        state.lessons.filter(
+            l => l.id !== editingLessonId
+        );
+
+
+    renderSubjectColors();
+
+    renderTimetable();
+
+    saveData(false);
+
+    closeLessonModal();
+
+    showToast("Séance supprimée.");
+
+}
+
+
+/* =========================================================
+   DAYS
+========================================================= */
+
+function addDay() {
+
+    const names = {
+
+        fr: [
+            "Lundi",
+            "Mardi",
+            "Mercredi",
+            "Jeudi",
+            "Vendredi",
+            "Samedi",
+            "Dimanche"
+        ],
+
+        en: [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        ],
+
+        es: [
+            "Lunes",
+            "Martes",
+            "Miércoles",
+            "Jueves",
+            "Viernes",
+            "Sábado",
+            "Domingo"
+        ],
+
+        ar: [
+            "الإثنين",
+            "الثلاثاء",
+            "الأربعاء",
+            "الخميس",
+            "الجمعة",
+            "السبت",
+            "الأحد"
+        ],
+
+        darija: [
+            "الحد",
+            "التنين",
+            "التلات",
+            "الربعة",
+            "الخميس",
+            "الجمعة",
+            "السبت"
+        ]
+
+    };
+
+
+    const current =
+        state.days.length;
+
+
+    if (current >= 7) {
+
+        showToast("Maximum 7 jours.");
+
+        return;
+    }
+
+
+    state.days.push(
+        names[state.language][current]
+    );
+
+
+    renderTimetable();
+
+    saveData(false);
+
+}
+
+
+function removeDay() {
+
+    if (state.days.length <= 1) {
+
+        showToast("Il faut garder au moins un jour.");
+
+        return;
+    }
+
+
+    const removed =
+        state.days[state.days.length - 1];
+
+
+    state.days.pop();
+
+
+    state.lessons =
+        state.lessons.filter(
+            lesson =>
+                lesson.day !== removed
+        );
+
+
+    renderTimetable();
+
+    renderSubjectColors();
+
+    saveData(false);
+
+}
+
+
+/* =========================================================
+   SAVE / LOAD
+========================================================= */
+
+function saveData(showMessage = true) {
+
+    state.dayStart =
+        document.getElementById("dayStart").value;
+
+    state.dayEnd =
+        document.getElementById("dayEnd").value;
+
+    state.slotDuration =
+        Number(
+            document.getElementById("slotDuration").value
+        );
+
+
+    localStorage.setItem(
+        "yasTimetable",
+        JSON.stringify(state)
+    );
+
+
+    if (showMessage) {
+
+        showToast("Tableau sauvegardé ✓");
+
+    }
+
+}
+
+
+function loadData() {
+
+    const saved =
+        localStorage.getItem(
+            "yasTimetable"
+        );
+
+
+    if (!saved)
+        return;
+
+
+    try {
+
+        const data =
+            JSON.parse(saved);
+
+
+        state = {
+
+            ...state,
+
+            ...data
+
+        };
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Impossible de charger les données",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   NEW TIMETABLE
+========================================================= */
+
+function newTimetable() {
+
+    const yes =
+        confirm(
+            "Créer un nouveau tableau ? Les données actuelles seront supprimées."
+        );
+
+
+    if (!yes)
+        return;
+
+
+    state.lessons = [];
+
+    state.deletedPeriods = [];
+
+
+    localStorage.removeItem(
+        "yasTimetable"
+    );
+
+
+    renderTimetable();
+
+    renderSubjectColors();
+
+    updateDeletedList();
+
+    showToast("Nouveau tableau créé.");
+
+}
+
+
+/* =========================================================
+   PNG EXPORT
+========================================================= */
+
+async function exportPNG() {
+
+    const table =
+        document.getElementById("timetable");
+
+
+    /*
+       Temporarily remove horizontal limitations.
+       This prevents the exported image from being
+       cropped by the scroll container.
+    */
+
+    const wrapper =
+        table.parentElement;
+
+
+    const oldOverflow =
+        wrapper.style.overflow;
+
+
+    const oldWidth =
+        table.style.width;
+
+
+    wrapper.style.overflow = "visible";
+
+    table.style.width = "max-content";
+
+
+    try {
+
+        const canvas =
+            await html2canvas(table, {
+
+                scale: 3,
+
+                useCORS: true,
+
+                backgroundColor: "#ffffff",
+
+                logging: false,
+
+                windowWidth:
+                    Math.max(
+                        document.documentElement.scrollWidth,
+                        table.scrollWidth
+                    )
+
+            });
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.download =
+            "YAS-Timetable.png";
+
+
+        link.href =
+            canvas.toDataURL(
+                "image/png",
+                1.0
+            );
+
+
         link.click();
-      });
+
+
+        showToast("Image exportée ✓");
+
     }
 
-    // Initial Start
-    window.onload = initData;
-  </script>
+    catch(error) {
+
+        console.error(error);
+
+        showToast(
+            "Erreur pendant l'exportation."
+        );
+
+    }
+
+
+    wrapper.style.overflow =
+        oldOverflow;
+
+    table.style.width =
+        oldWidth;
+
+}
+
+
+/* =========================================================
+   PDF EXPORT
+========================================================= */
+
+async function exportPDF() {
+
+    const table =
+        document.getElementById("timetable");
+
+
+    const wrapper =
+        table.parentElement;
+
+
+    const oldOverflow =
+        wrapper.style.overflow;
+
+
+    const oldWidth =
+        table.style.width;
+
+
+    wrapper.style.overflow =
+        "visible";
+
+
+    table.style.width =
+        "max-content";
+
+
+    try {
+
+        const canvas =
+            await html2canvas(table, {
+
+                scale: 3,
+
+                useCORS: true,
+
+                backgroundColor: "#ffffff",
+
+                logging: false,
+
+                windowWidth:
+                    Math.max(
+                        document.documentElement.scrollWidth,
+                        table.scrollWidth
+                    )
+
+            });
+
+
+        const imgData =
+            canvas.toDataURL(
+                "image/png",
+                1.0
+            );
+
+
+        const {
+            jsPDF
+        } = window.jspdf;
+
+
+        const pdf =
+            new jsPDF({
+
+                orientation: "landscape",
+
+                unit: "mm",
+
+                format: "a4",
+
+                compress: true
+
+            });
+
+
+        const pageWidth =
+            pdf.internal.pageSize.getWidth();
+
+
+        const pageHeight =
+            pdf.internal.pageSize.getHeight();
+
+
+        const margin = 5;
+
+
+        const availableWidth =
+            pageWidth - margin * 2;
+
+
+        const availableHeight =
+            pageHeight - margin * 2;
+
+
+        const imageRatio =
+            canvas.width /
+            canvas.height;
+
+
+        let width =
+            availableWidth;
+
+
+        let height =
+            width / imageRatio;
+
+
+        /*
+           If height doesn't fit, scale it down.
+        */
+
+        if (height > availableHeight) {
+
+            height =
+                availableHeight;
+
+            width =
+                height * imageRatio;
+
+        }
+
+
+        const x =
+            (pageWidth - width) / 2;
+
+
+        const y =
+            (pageHeight - height) / 2;
+
+
+        pdf.addImage(
+
+            imgData,
+
+            "PNG",
+
+            x,
+
+            y,
+
+            width,
+
+            height,
+
+            undefined,
+
+            "FAST"
+
+        );
+
+
+        pdf.save(
+            "YAS-Timetable.pdf"
+        );
+
+
+        showToast("PDF créé ✓");
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        showToast(
+            "Erreur pendant la création du PDF."
+        );
+
+    }
+
+
+    wrapper.style.overflow =
+        oldOverflow;
+
+    table.style.width =
+        oldWidth;
+
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById("toast");
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add("show");
+
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 2500);
+
+}
+
+
+function escapeHTML(text) {
+
+    return String(text)
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+
+}
+
+
+function getContrastColor(hex) {
+
+    hex =
+        hex.replace("#","");
+
+
+    const r =
+        parseInt(
+            hex.substring(0,2),
+            16
+        );
+
+
+    const g =
+        parseInt(
+            hex.substring(2,4),
+            16
+        );
+
+
+    const b =
+        parseInt(
+            hex.substring(4,6),
+            16
+        );
+
+
+    const luminance =
+        (0.299*r +
+         0.587*g +
+         0.114*b);
+
+
+    return luminance > 175
+        ? "#514957"
+        : "#ffffff";
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL WHEN CLICKING OUTSIDE
+========================================================= */
+
+document.getElementById("lessonModal")
+.addEventListener(
+    "click",
+    function(e) {
+
+        if (e.target === this) {
+
+            closeLessonModal();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SUBJECT AUTOCOMPLETE
+========================================================= */
+
+function updateSubjectOptions() {
+
+    const datalist =
+        document.getElementById(
+            "subjectOptions"
+        );
+
+
+    datalist.innerHTML = "";
+
+
+    Object.keys(state.colors)
+    .forEach(subject => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = subject;
+
+        datalist.appendChild(option);
+
+    });
+
+}
+
+
+updateSubjectOptions();
+
+
+/*
+   Re-render options when colors/subjects change.
+*/
+
+const originalRenderSubjectColors =
+    renderSubjectColors;
+
+
+</script>
+
 </body>
 </html>
