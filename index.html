@@ -1,57 +1,83 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" dir="ltr">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>YAS! Timetable</title>
 
-<!-- Libraries for export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-* {
-    box-sizing: border-box;
-}
+
+/* =========================================================
+   YAS! TIMETABLE
+   OFFLINE VERSION
+   ========================================================= */
 
 :root {
     --bg: #f8f5fb;
     --card: #ffffff;
-    --text: #4d4654;
+    --text: #504957;
     --muted: #8b8492;
-    --border: #e9e2ed;
-    --primary: #9c82b5;
-    --primary-dark: #76568f;
-    --danger: #d88989;
-    --shadow: 0 8px 25px rgba(80, 60, 90, 0.08);
+    --border: #e7e0eb;
+    --primary: #9b7eb3;
+    --primary-dark: #77578f;
+    --danger: #d98b8b;
+    --soft: #f3edf6;
+    --shadow: 0 8px 25px rgba(80,60,90,.08);
+}
+
+/*
+   Cabin first.
+   If it isn't installed, Poppins is tried.
+   Arabic-compatible fallbacks follow.
+*/
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+    font-family:
+        "Cabin",
+        "Poppins",
+        "Noto Sans Arabic",
+        "Segoe UI",
+        Tahoma,
+        Arial,
+        sans-serif;
 }
 
 body {
     margin: 0;
-    font-family: Arial, "Segoe UI", sans-serif;
     background: var(--bg);
     color: var(--text);
 }
 
-/* ---------- HEADER ---------- */
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 header {
-    background: rgba(255,255,255,0.95);
-    border-bottom: 1px solid var(--border);
-    padding: 18px 25px;
     position: sticky;
     top: 0;
     z-index: 100;
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid var(--border);
     backdrop-filter: blur(10px);
 }
 
 .header-inner {
-    max-width: 1500px;
+    width: min(1500px,95%);
     margin: auto;
+    padding: 16px 0;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     gap: 15px;
 }
 
@@ -62,39 +88,34 @@ header {
 }
 
 .logo span {
-    color: #c58fb1;
+    color: #c68fb0;
 }
 
 .header-actions {
     display: flex;
-    gap: 8px;
+    gap: 7px;
     flex-wrap: wrap;
 }
 
-/* ---------- BUTTONS ---------- */
-
-button,
-select,
-input {
-    font: inherit;
-}
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 button {
-    border: none;
+    border: 0;
     cursor: pointer;
 }
 
 .btn {
-    padding: 10px 15px;
-    border-radius: 12px;
-    background: #f2edf5;
+    padding: 10px 14px;
+    border-radius: 11px;
+    background: var(--soft);
     color: var(--text);
-    transition: 0.2s;
+    transition: .18s;
 }
 
 .btn:hover {
     transform: translateY(-1px);
-    background: #eae1ef;
 }
 
 .btn.primary {
@@ -108,13 +129,15 @@ button {
 
 .btn.danger {
     background: #f6e1e1;
-    color: #a55c5c;
+    color: #9b5b5b;
 }
 
-/* ---------- MAIN ---------- */
+/* =========================================================
+   MAIN
+   ========================================================= */
 
 .container {
-    width: min(1500px, 95%);
+    width: min(1500px,95%);
     margin: 25px auto 60px;
 }
 
@@ -123,22 +146,25 @@ button {
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     box-shadow: var(--shadow);
 }
 
 .panel-title {
-    font-size: 19px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 700;
     margin-bottom: 15px;
 }
 
-/* ---------- SETTINGS ---------- */
+/* =========================================================
+   FORMS
+   ========================================================= */
 
 .settings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 15px;
+    grid-template-columns:
+        repeat(auto-fit,minmax(190px,1fr));
+    gap: 14px;
 }
 
 .field {
@@ -148,65 +174,75 @@ button {
 }
 
 .field label {
-    font-size: 13px;
     color: var(--muted);
+    font-size: 13px;
 }
 
 .field input,
-.field select {
-    width: 100%;
+.field select,
+.field textarea {
     border: 1px solid var(--border);
     background: #fcfbfd;
     border-radius: 11px;
     padding: 10px;
     outline: none;
+    color: var(--text);
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 80px;
 }
 
 .field input:focus,
-.field select:focus {
+.field select:focus,
+.field textarea:focus {
     border-color: var(--primary);
 }
 
-/* ---------- SUBJECT COLORS ---------- */
+/* =========================================================
+   SUBJECT COLORS
+   ========================================================= */
 
 .subject-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 10px;
+    grid-template-columns:
+        repeat(auto-fill,minmax(190px,1fr));
+    gap: 9px;
 }
 
 .subject-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
+    padding: 9px;
     background: #faf8fb;
-    padding: 10px;
-    border-radius: 12px;
     border: 1px solid var(--border);
+    border-radius: 11px;
 }
 
 .color-circle {
-    width: 27px;
-    height: 27px;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 0 0 1px #ddd;
-    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border: 0;
     padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
-/* ---------- TIMETABLE ---------- */
+/* =========================================================
+   TIMETABLE
+   ========================================================= */
 
 .table-wrapper {
-    overflow-x: auto;
-    overflow-y: hidden;
-    border-radius: 15px;
+    width: 100%;
+    overflow: auto;
     border: 1px solid var(--border);
+    border-radius: 15px;
 }
 
 .timetable {
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
     width: 100%;
     min-width: 900px;
     table-layout: fixed;
@@ -214,97 +250,135 @@ button {
 
 .timetable th,
 .timetable td {
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+    border: 1px solid var(--border);
 }
 
 .timetable th {
-    background: #f7f3f9;
-    padding: 13px 8px;
+    background: #f7f2f9;
+    padding: 12px 7px;
     font-size: 14px;
     text-align: center;
 }
 
 .time-cell {
-    width: 100px;
-    min-width: 100px;
+    width: 95px;
+    min-width: 95px;
     text-align: center;
-    font-size: 12px;
-    color: var(--muted);
     background: #faf8fb;
-    padding: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 5px;
 }
 
 .day-cell {
-    height: 65px;
-    min-height: 65px;
+    height: 62px;
     padding: 4px;
     vertical-align: top;
 }
 
 .empty-cell {
-    background: #fff;
+    background: white;
+    cursor: pointer;
+}
+
+.empty-cell:hover {
+    background: #faf7fc;
 }
 
 .deleted-time {
-    background: repeating-linear-gradient(
-        45deg,
-        #f7f3f9,
-        #f7f3f9 8px,
-        #eee8f1 8px,
-        #eee8f1 16px
-    );
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #f6f1f8,
+            #f6f1f8 8px,
+            #ece5ef 8px,
+            #ece5ef 16px
+        );
 }
 
-/* ---------- LESSON ---------- */
+/* =========================================================
+   LESSON
+   ========================================================= */
 
 .lesson {
     width: 100%;
     height: 100%;
-    min-height: 55px;
+    min-height: 54px;
     border-radius: 11px;
-    padding: 8px;
-    cursor: pointer;
+    padding: 7px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    transition: 0.15s;
+    cursor: pointer;
     overflow: hidden;
+    transition: .15s;
 }
 
 .lesson:hover {
-    transform: scale(1.015);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: scale(1.01);
+    box-shadow: 0 5px 14px rgba(0,0,0,.10);
 }
 
 .lesson-name {
-    font-weight: bold;
+    font-weight: 800;
     font-size: 14px;
 }
 
+.lesson-time {
+    font-size: 10px;
+    margin-top: 3px;
+    opacity: .75;
+}
+
 .lesson-info {
-    font-size: 11px;
-    margin-top: 4px;
-    opacity: 0.75;
+    font-size: 10px;
+    margin-top: 3px;
+    opacity: .78;
 }
 
 .lesson-long {
     min-height: 120px;
 }
 
-/* ---------- MODAL ---------- */
+/* =========================================================
+   DELETED PERIODS
+   ========================================================= */
+
+.deleted-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.deleted-item {
+    background: #f6e3e3;
+    color: #945b5b;
+    padding: 7px 10px;
+    border-radius: 10px;
+}
+
+.deleted-item button {
+    background: transparent;
+    color: inherit;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
 
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(45, 35, 50, 0.35);
-    display: none;
-    justify-content: center;
-    align-items: center;
     z-index: 500;
-    padding: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(40,30,45,.38);
+    padding: 18px;
 }
 
 .modal-overlay.show {
@@ -312,13 +386,13 @@ button {
 }
 
 .modal {
-    width: min(600px, 100%);
-    max-height: 90vh;
+    width: min(650px,100%);
+    max-height: 92vh;
     overflow-y: auto;
     background: white;
     border-radius: 22px;
-    padding: 25px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.22);
 }
 
 .modal h2 {
@@ -331,73 +405,34 @@ button {
     gap: 13px;
 }
 
-.modal-full {
+.full {
     grid-column: 1 / -1;
 }
 
 .modal-actions {
+    margin-top: 20px;
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 20px;
     flex-wrap: wrap;
 }
 
-/* ---------- COLOR PICKER ---------- */
-
-.color-picker-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.color-picker {
-    width: 55px;
-    height: 40px;
-    border: none;
-    padding: 0;
-    background: none;
-    cursor: pointer;
-}
-
-/* ---------- DELETE TIME ---------- */
-
-.deleted-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.deleted-item {
-    background: #f6e4e4;
-    color: #985b5b;
-    padding: 8px 10px;
-    border-radius: 10px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.deleted-item button {
-    background: none;
-    color: inherit;
-    font-weight: bold;
-}
-
-/* ---------- TOAST ---------- */
+/* =========================================================
+   TOAST
+   ========================================================= */
 
 .toast {
     position: fixed;
+    z-index: 1000;
     bottom: 25px;
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: #4d4654;
+    transform: translateX(-50%) translateY(80px);
+    background: #514a58;
     color: white;
-    padding: 12px 18px;
+    padding: 11px 17px;
     border-radius: 12px;
     opacity: 0;
-    transition: 0.3s;
-    z-index: 1000;
+    transition: .25s;
 }
 
 .toast.show {
@@ -405,7 +440,9 @@ button {
     transform: translateX(-50%) translateY(0);
 }
 
-/* ---------- PRINT ---------- */
+/* =========================================================
+   PRINT
+   ========================================================= */
 
 @media print {
 
@@ -414,9 +451,6 @@ button {
     }
 
     header,
-    .settings-panel,
-    .subject-panel,
-    .actions-panel,
     .no-print {
         display: none !important;
     }
@@ -427,28 +461,19 @@ button {
     }
 
     .panel {
-        border: none;
-        box-shadow: none;
         padding: 0;
+        border: 0;
+        box-shadow: none;
     }
 
     .table-wrapper {
         overflow: visible;
-        border: none;
+        border: 0;
     }
 
     .timetable {
-        min-width: 0;
         width: 100%;
-    }
-
-    .timetable th,
-    .timetable td {
-        border-color: #ccc;
-    }
-
-    .lesson {
-        box-shadow: none !important;
+        min-width: 0;
     }
 
     @page {
@@ -457,650 +482,843 @@ button {
     }
 }
 
-/* ---------- MOBILE ---------- */
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
-@media (max-width: 700px) {
+@media(max-width:700px) {
 
     .header-inner {
-        align-items: flex-start;
         flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-actions {
+        justify-content: center;
     }
 
     .modal-grid {
         grid-template-columns: 1fr;
     }
 
-    .modal-full {
+    .full {
         grid-column: auto;
     }
-
-    .container {
-        width: 97%;
-    }
 }
+
 </style>
 </head>
 
+
 <body>
 
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
 <header>
-    <div class="header-inner">
 
-        <div class="logo">
-            YAS<span>!</span> Timetable
-        </div>
+<div class="header-inner">
 
-        <div class="header-actions">
+    <div class="logo">
+        YAS<span>!</span>
+    </div>
 
-            <button class="btn" onclick="openLessonModal()">
-                ＋ <span data-i18n="addLesson">Ajouter</span>
-            </button>
+    <div class="header-actions">
 
-            <button class="btn" onclick="saveData()">
-                💾 <span data-i18n="save">Sauvegarder</span>
-            </button>
+        <button class="btn"
+                onclick="openLessonModal()">
+            ＋ <span data-i18n="addLesson">Ajouter</span>
+        </button>
 
-            <button class="btn" onclick="window.print()">
-                🖨️ <span data-i18n="print">Imprimer</span>
-            </button>
+        <button class="btn"
+                onclick="saveData()">
+            💾 <span data-i18n="save">Sauvegarder</span>
+        </button>
 
-            <button class="btn" onclick="exportPNG()">
-                🖼️ PNG
-            </button>
+        <button class="btn"
+                onclick="window.print()">
+            🖨️ <span data-i18n="print">Imprimer</span>
+        </button>
 
-            <button class="btn primary" onclick="exportPDF()">
-                📄 PDF
-            </button>
+        <button class="btn"
+                onclick="exportPNG()">
+            🖼️ PNG
+        </button>
 
-        </div>
+        <button class="btn primary"
+                onclick="printPDF()">
+            📄 PDF
+        </button>
 
     </div>
+
+</div>
+
 </header>
 
 
 <main class="container">
 
-    <!-- SETTINGS -->
 
-    <section class="panel settings-panel no-print">
+<!-- =======================================================
+     GENERAL SETTINGS
+======================================================= -->
 
-        <div class="panel-title" data-i18n="settings">
-            Paramètres
-        </div>
+<section class="panel no-print">
 
-        <div class="settings-grid">
+<div class="panel-title"
+     data-i18n="settings">
+    Paramètres
+</div>
 
-            <div class="field">
-                <label data-i18n="language">
-                    Langue
-                </label>
 
-                <select id="language" onchange="changeLanguage(this.value)">
-                    <option value="fr">Français</option>
-                    <option value="ar">العربية</option>
-                    <option value="darija">الدارجة</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                </select>
-            </div>
+<div class="settings-grid">
 
 
-            <div class="field">
-                <label data-i18n="startDay">
-                    Début de la journée
-                </label>
+    <!-- LANGUAGE -->
 
-                <input
-                    type="time"
-                    id="dayStart"
-                    value="08:00"
-                    onchange="renderTimetable()"
-                >
-            </div>
+    <div class="field">
 
+        <label data-i18n="language">
+            Langue
+        </label>
 
-            <div class="field">
-                <label data-i18n="endDay">
-                    Fin de la journée
-                </label>
+        <select id="language"
+                onchange="changeLanguage(this.value)">
 
-                <input
-                    type="time"
-                    id="dayEnd"
-                    value="18:00"
-                    onchange="renderTimetable()"
-                >
-            </div>
+            <option value="fr">Français</option>
 
+            <option value="ar">العربية</option>
 
-            <div class="field">
-                <label data-i18n="slot">
-                    Durée d'une tranche
-                </label>
+            <option value="darija">الدارجة</option>
 
-                <select id="slotDuration" onchange="renderTimetable()">
-                    <option value="30">30 min</option>
-                    <option value="60" selected>1 h</option>
-                    <option value="90">1 h 30</option>
-                    <option value="120">2 h</option>
-                </select>
-            </div>
+            <option value="en">English</option>
 
-        </div>
+            <option value="es">Español</option>
 
-    </section>
+        </select>
 
+    </div>
 
-    <!-- DELETE TIME -->
 
-    <section class="panel no-print">
+    <!-- TABLE TITLE -->
 
-        <div class="panel-title" data-i18n="deletePeriod">
-            Supprimer une période vide
-        </div>
+    <div class="field">
 
-        <div class="settings-grid">
+        <label data-i18n="tableTitle">
+            Titre du tableau
+        </label>
 
-            <div class="field">
-                <label data-i18n="from">
-                    De
-                </label>
+        <input id="tableTitle"
+               value="Mon emploi du temps"
+               oninput="updateTitle()">
 
-                <input type="time" id="deleteStart" value="13:00">
-            </div>
+    </div>
 
-            <div class="field">
-                <label data-i18n="to">
-                    À
-                </label>
 
-                <input type="time" id="deleteEnd" value="14:00">
-            </div>
+    <!-- ORIENTATION -->
 
-            <div class="field">
-                <label>&nbsp;</label>
+    <div class="field">
 
-                <button class="btn danger" onclick="deleteTimePeriod()">
-                    🗑️ <span data-i18n="delete">Supprimer</span>
-                </button>
-            </div>
+        <label data-i18n="orientation">
+            Orientation
+        </label>
 
-        </div>
+        <select id="orientation"
+                onchange="renderTimetable()">
 
+            <option value="vertical"
+                    data-i18n="vertical">
+                Vertical
+            </option>
 
-        <div style="margin-top:15px">
+            <option value="horizontal"
+                    data-i18n="horizontal">
+                Horizontal
+            </option>
 
-            <div
-                style="font-size:13px;color:var(--muted);margin-bottom:8px"
-                data-i18n="deletedPeriods"
-            >
-                Périodes supprimées
-            </div>
+        </select>
 
-            <div id="deletedList" class="deleted-list"></div>
+    </div>
 
-        </div>
 
-    </section>
+    <!-- NUMBER OF DAYS -->
 
+    <div class="field">
 
-    <!-- SUBJECT COLORS -->
+        <label data-i18n="numberDays">
+            Nombre de jours
+        </label>
 
-    <section class="panel subject-panel no-print">
+        <select id="numberDays"
+                onchange="changeNumberOfDays()">
 
-        <div class="panel-title" data-i18n="colors">
-            Couleurs des matières
-        </div>
+            <option value="5">5</option>
 
-        <div id="subjectList" class="subject-list"></div>
+            <option value="6">6</option>
 
-    </section>
+            <option value="7">7</option>
 
+        </select>
 
-    <!-- ACTIONS -->
+    </div>
 
-    <section class="panel actions-panel no-print">
 
-        <div class="panel-title" data-i18n="days">
-            Jours
-        </div>
+    <!-- DAY START -->
 
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="field">
 
-            <button class="btn" onclick="addDay()">
-                ＋ <span data-i18n="addDay">Ajouter un jour</span>
-            </button>
+        <label data-i18n="dayStart">
+            Début de la journée
+        </label>
 
-            <button class="btn danger" onclick="removeDay()">
-                − <span data-i18n="removeDay">Supprimer le dernier jour</span>
-            </button>
+        <input type="time"
+               id="dayStart"
+               value="08:00"
+               onchange="renderTimetable()">
 
-            <button class="btn" onclick="newTimetable()">
-                🔄 <span data-i18n="new">Nouveau tableau</span>
-            </button>
+    </div>
 
-        </div>
 
-    </section>
+    <!-- DAY END -->
 
+    <div class="field">
 
-    <!-- TIMETABLE -->
+        <label data-i18n="dayEnd">
+            Fin de la journée
+        </label>
 
-    <section class="panel">
+        <input type="time"
+               id="dayEnd"
+               value="18:00"
+               onchange="renderTimetable()">
 
-        <div
-            id="printTitle"
-            style="
-                text-align:center;
-                font-size:24px;
-                font-weight:bold;
-                margin-bottom:18px;
-            "
-        >
-            YAS! Timetable
-        </div>
+    </div>
 
-        <div class="table-wrapper">
 
-            <table
-                id="timetable"
-                class="timetable"
-            >
-            </table>
+    <!-- FREE SLOT DURATION -->
 
-        </div>
+    <div class="field">
 
-    </section>
+        <label data-i18n="slotDuration">
+            Durée des créneaux
+        </label>
 
-</main>
+        <input type="number"
+               id="slotDuration"
+               min="5"
+               max="240"
+               step="5"
+               value="60"
+               onchange="renderTimetable()">
 
+    </div>
 
-<!-- LESSON MODAL -->
 
-<div id="lessonModal" class="modal-overlay">
+</div>
 
-    <div class="modal">
+</section>
 
-        <h2 id="modalTitle">
-            Ajouter une séance
-        </h2>
 
-        <div class="modal-grid">
+<!-- =======================================================
+     DELETE TIME
+======================================================= -->
 
-            <div class="field">
-                <label data-i18n="day">
-                    Jour
-                </label>
+<section class="panel no-print">
 
-                <select id="lessonDay"></select>
-            </div>
+<div class="panel-title"
+     data-i18n="deletePeriod">
+    Supprimer une période vide
+</div>
 
 
-            <div class="field">
-                <label data-i18n="subject">
-                    Matière
-                </label>
+<div class="settings-grid">
 
-                <input
-                    type="text"
-                    id="lessonSubject"
-                    list="subjectOptions"
-                    placeholder="Math"
-                >
 
-                <datalist id="subjectOptions"></datalist>
+    <div class="field">
 
-            </div>
+        <label data-i18n="from">
+            De
+        </label>
 
+        <input type="time"
+               id="deleteStart"
+               value="13:00">
 
-            <div class="field">
-                <label data-i18n="start">
-                    Début
-                </label>
+    </div>
 
-                <input
-                    type="time"
-                    id="lessonStart"
-                    value="08:00"
-                >
-            </div>
 
+    <div class="field">
 
-            <div class="field">
-                <label data-i18n="end">
-                    Fin
-                </label>
+        <label data-i18n="to">
+            À
+        </label>
 
-                <input
-                    type="time"
-                    id="lessonEnd"
-                    value="09:00"
-                >
-            </div>
+        <input type="time"
+               id="deleteEnd"
+               value="14:00">
 
+    </div>
 
-            <div class="field">
-                <label data-i18n="teacher">
-                    Professeur
-                </label>
 
-                <input
-                    type="text"
-                    id="lessonTeacher"
-                    placeholder="..."
-                >
-            </div>
+    <div class="field">
 
+        <label>&nbsp;</label>
 
-            <div class="field">
-                <label data-i18n="room">
-                    Salle / Classe
-                </label>
+        <button class="btn danger"
+                onclick="deleteTimePeriod()">
 
-                <input
-                    type="text"
-                    id="lessonRoom"
-                    placeholder="..."
-                >
-            </div>
+            🗑️
+            <span data-i18n="delete">
+                Supprimer
+            </span>
 
-
-            <div class="field modal-full">
-
-                <label data-i18n="color">
-                    Couleur
-                </label>
-
-                <div class="color-picker-row">
-
-                    <input
-                        type="color"
-                        id="lessonColor"
-                        class="color-picker"
-                        value="#d9c5e8"
-                    >
-
-                    <span
-                        id="colorHex"
-                        style="font-size:13px;color:#888"
-                    >
-                        #d9c5e8
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="modal-actions">
-
-            <button
-                class="btn danger"
-                id="deleteLessonBtn"
-                onclick="deleteCurrentLesson()"
-                style="display:none"
-            >
-                🗑️ <span data-i18n="delete">Supprimer</span>
-            </button>
-
-            <button
-                class="btn"
-                onclick="closeLessonModal()"
-            >
-                <span data-i18n="cancel">Annuler</span>
-            </button>
-
-            <button
-                class="btn primary"
-                onclick="saveLesson()"
-            >
-                ✓ <span data-i18n="confirm">Enregistrer</span>
-            </button>
-
-        </div>
+        </button>
 
     </div>
 
 </div>
 
 
-<div id="toast" class="toast"></div>
+<div style="margin-top:15px">
+
+<div style="font-size:13px;color:var(--muted)"
+     data-i18n="deletedPeriods">
+
+    Périodes supprimées
+
+</div>
+
+<div id="deletedList"
+     class="deleted-list"
+     style="margin-top:8px">
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     SUBJECT COLORS
+======================================================= -->
+
+<section class="panel no-print">
+
+<div class="panel-title"
+     data-i18n="colors">
+    Couleurs des matières
+</div>
+
+<div id="subjectList"
+     class="subject-list">
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     TIMETABLE
+======================================================= -->
+
+<section class="panel">
+
+<h1 id="printTitle"
+    style="
+        text-align:center;
+        font-size:25px;
+        margin:5px 0 20px;
+    ">
+    Mon emploi du temps
+</h1>
+
+
+<div class="table-wrapper">
+
+<table id="timetable"
+       class="timetable">
+
+</table>
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- =======================================================
+     LESSON MODAL
+======================================================= -->
+
+<div id="lessonModal"
+     class="modal-overlay">
+
+<div class="modal">
+
+<h2 id="modalTitle">
+    Ajouter une séance
+</h2>
+
+
+<div class="modal-grid">
+
+
+    <!-- DAY -->
+
+    <div class="field">
+
+        <label data-i18n="day">
+            Jour
+        </label>
+
+        <select id="lessonDay"></select>
+
+    </div>
+
+
+    <!-- SUBJECT -->
+
+    <div class="field">
+
+        <label data-i18n="subject">
+            Matière
+        </label>
+
+        <input id="lessonSubject"
+               list="subjectOptions"
+               placeholder="Math">
+
+        <datalist id="subjectOptions"></datalist>
+
+    </div>
+
+
+    <!-- START -->
+
+    <div class="field">
+
+        <label data-i18n="start">
+            Début
+        </label>
+
+        <input type="time"
+               id="lessonStart"
+               value="08:00">
+
+    </div>
+
+
+    <!-- END -->
+
+    <div class="field">
+
+        <label data-i18n="end">
+            Fin
+        </label>
+
+        <input type="time"
+               id="lessonEnd"
+               value="09:00">
+
+    </div>
+
+
+    <!-- TEACHER -->
+
+    <div class="field">
+
+        <label data-i18n="teacher">
+            Professeur
+        </label>
+
+        <input id="lessonTeacher"
+               placeholder="...">
+
+    </div>
+
+
+    <!-- LOCATION -->
+
+    <div class="field">
+
+        <label data-i18n="location">
+            Salle / Lieu
+        </label>
+
+        <input id="lessonLocation"
+               placeholder="Salle 12">
+
+    </div>
+
+
+    <!-- COLOR -->
+
+    <div class="field full">
+
+        <label data-i18n="color">
+            Couleur
+        </label>
+
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:12px;
+        ">
+
+            <input type="color"
+                   id="lessonColor"
+                   value="#d9c5e8"
+                   style="
+                       width:55px;
+                       height:40px;
+                       border:0;
+                       background:none;
+                       padding:0;
+                   ">
+
+            <span id="colorHex">
+                #d9c5e8
+            </span>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<div class="modal-actions">
+
+
+    <button class="btn danger"
+            id="deleteLessonBtn"
+            onclick="deleteCurrentLesson()"
+            style="display:none">
+
+        🗑️
+        <span data-i18n="delete">
+            Supprimer
+        </span>
+
+    </button>
+
+
+    <button class="btn"
+            onclick="closeLessonModal()">
+
+        <span data-i18n="cancel">
+            Annuler
+        </span>
+
+    </button>
+
+
+    <button class="btn primary"
+            onclick="saveLesson()">
+
+        ✓
+        <span data-i18n="confirm">
+            Enregistrer
+        </span>
+
+    </button>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<div id="toast"
+     class="toast">
+</div>
 
 
 <script>
 
 /* =========================================================
-   DATA
+   TRANSLATIONS
 ========================================================= */
 
-const translations = {
+const T = {
 
-    fr: {
-        addLesson:"Ajouter",
-        save:"Sauvegarder",
-        print:"Imprimer",
-        settings:"Paramètres",
-        language:"Langue",
-        startDay:"Début de la journée",
-        endDay:"Fin de la journée",
-        slot:"Durée d'une tranche",
-        deletePeriod:"Supprimer une période vide",
-        from:"De",
-        to:"À",
-        delete:"Supprimer",
-        deletedPeriods:"Périodes supprimées",
-        colors:"Couleurs des matières",
-        days:"Jours",
-        addDay:"Ajouter un jour",
-        removeDay:"Supprimer le dernier jour",
-        new:"Nouveau tableau",
-        day:"Jour",
-        subject:"Matière",
-        start:"Début",
-        end:"Fin",
-        teacher:"Professeur",
-        room:"Salle / Classe",
-        color:"Couleur",
-        cancel:"Annuler",
-        confirm:"Enregistrer"
-    },
+fr: {
 
-    en: {
-        addLesson:"Add",
-        save:"Save",
-        print:"Print",
-        settings:"Settings",
-        language:"Language",
-        startDay:"Day start",
-        endDay:"Day end",
-        slot:"Time slot",
-        deletePeriod:"Delete empty period",
-        from:"From",
-        to:"To",
-        delete:"Delete",
-        deletedPeriods:"Deleted periods",
-        colors:"Subject colors",
-        days:"Days",
-        addDay:"Add day",
-        removeDay:"Remove last day",
-        new:"New timetable",
-        day:"Day",
-        subject:"Subject",
-        start:"Start",
-        end:"End",
-        teacher:"Teacher",
-        room:"Room / Class",
-        color:"Color",
-        cancel:"Cancel",
-        confirm:"Save"
-    },
+settings:"Paramètres",
+language:"Langue",
+tableTitle:"Titre du tableau",
+orientation:"Orientation",
+vertical:"Vertical",
+horizontal:"Horizontal",
+numberDays:"Nombre de jours",
+dayStart:"Début de la journée",
+dayEnd:"Fin de la journée",
+slotDuration:"Durée des créneaux",
+deletePeriod:"Supprimer une période vide",
+from:"De",
+to:"À",
+delete:"Supprimer",
+deletedPeriods:"Périodes supprimées",
+colors:"Couleurs des matières",
+addLesson:"Ajouter",
+save:"Sauvegarder",
+print:"Imprimer",
+day:"Jour",
+subject:"Matière",
+start:"Début",
+end:"Fin",
+teacher:"Professeur",
+location:"Salle / Lieu",
+color:"Couleur",
+cancel:"Annuler",
+confirm:"Enregistrer"
 
-    es: {
-        addLesson:"Añadir",
-        save:"Guardar",
-        print:"Imprimir",
-        settings:"Configuración",
-        language:"Idioma",
-        startDay:"Inicio del día",
-        endDay:"Fin del día",
-        slot:"Duración",
-        deletePeriod:"Eliminar período vacío",
-        from:"Desde",
-        to:"Hasta",
-        delete:"Eliminar",
-        deletedPeriods:"Períodos eliminados",
-        colors:"Colores de asignaturas",
-        days:"Días",
-        addDay:"Añadir día",
-        removeDay:"Eliminar último día",
-        new:"Nuevo horario",
-        day:"Día",
-        subject:"Asignatura",
-        start:"Inicio",
-        end:"Fin",
-        teacher:"Profesor",
-        room:"Aula / Clase",
-        color:"Color",
-        cancel:"Cancelar",
-        confirm:"Guardar"
-    },
+},
 
-    ar: {
-        addLesson:"إضافة",
-        save:"حفظ",
-        print:"طباعة",
-        settings:"الإعدادات",
-        language:"اللغة",
-        startDay:"بداية اليوم",
-        endDay:"نهاية اليوم",
-        slot:"مدة الخانة",
-        deletePeriod:"حذف فترة فارغة",
-        from:"من",
-        to:"إلى",
-        delete:"حذف",
-        deletedPeriods:"الفترات المحذوفة",
-        colors:"ألوان المواد",
-        days:"الأيام",
-        addDay:"إضافة يوم",
-        removeDay:"حذف آخر يوم",
-        new:"جدول جديد",
-        day:"اليوم",
-        subject:"المادة",
-        start:"البداية",
-        end:"النهاية",
-        teacher:"الأستاذ",
-        room:"القسم / القاعة",
-        color:"اللون",
-        cancel:"إلغاء",
-        confirm:"حفظ"
-    },
+en: {
 
-    darija: {
-        addLesson:"زيد حصة",
-        save:"حفظ",
-        print:"طبع",
-        settings:"الإعدادات",
-        language:"اللغة",
-        startDay:"بداية النهار",
-        endDay:"نهاية النهار",
-        slot:"مدة الخانة",
-        deletePeriod:"مسح فترة خاوية",
-        from:"من",
-        to:"حتى",
-        delete:"مسح",
-        deletedPeriods:"الفترات الممسوحة",
-        colors:"ألوان المواد",
-        days:"الأيام",
-        addDay:"زيد نهار",
-        removeDay:"مسح آخر نهار",
-        new:"جدول جديد",
-        day:"النهار",
-        subject:"المادة",
-        start:"البداية",
-        end:"النهاية",
-        teacher:"الأستاذ",
-        room:"القسم / القاعة",
-        color:"اللون",
-        cancel:"إلغاء",
-        confirm:"حفظ"
-    }
+settings:"Settings",
+language:"Language",
+tableTitle:"Table title",
+orientation:"Orientation",
+vertical:"Vertical",
+horizontal:"Horizontal",
+numberDays:"Number of days",
+dayStart:"Day start",
+dayEnd:"Day end",
+slotDuration:"Time slot duration",
+deletePeriod:"Delete empty period",
+from:"From",
+to:"To",
+delete:"Delete",
+deletedPeriods:"Deleted periods",
+colors:"Subject colors",
+addLesson:"Add",
+save:"Save",
+print:"Print",
+day:"Day",
+subject:"Subject",
+start:"Start",
+end:"End",
+teacher:"Teacher",
+location:"Room / Location",
+color:"Color",
+cancel:"Cancel",
+confirm:"Save"
+
+},
+
+es: {
+
+settings:"Configuración",
+language:"Idioma",
+tableTitle:"Título del horario",
+orientation:"Orientación",
+vertical:"Vertical",
+horizontal:"Horizontal",
+numberDays:"Número de días",
+dayStart:"Inicio del día",
+dayEnd:"Fin del día",
+slotDuration:"Duración de los bloques",
+deletePeriod:"Eliminar período vacío",
+from:"Desde",
+to:"Hasta",
+delete:"Eliminar",
+deletedPeriods:"Períodos eliminados",
+colors:"Colores de asignaturas",
+addLesson:"Añadir",
+save:"Guardar",
+print:"Imprimir",
+day:"Día",
+subject:"Asignatura",
+start:"Inicio",
+end:"Fin",
+teacher:"Profesor",
+location:"Aula / Lugar",
+color:"Color",
+cancel:"Cancelar",
+confirm:"Guardar"
+
+},
+
+ar: {
+
+settings:"الإعدادات",
+language:"اللغة",
+tableTitle:"عنوان الجدول",
+orientation:"اتجاه الجدول",
+vertical:"طولي",
+horizontal:"عرضي",
+numberDays:"عدد أيام الدراسة",
+dayStart:"بداية اليوم",
+dayEnd:"نهاية اليوم",
+slotDuration:"مدة الخانات",
+deletePeriod:"حذف فترة فارغة",
+from:"من",
+to:"إلى",
+delete:"حذف",
+deletedPeriods:"الفترات المحذوفة",
+colors:"ألوان المواد",
+addLesson:"إضافة حصة",
+save:"حفظ",
+print:"طباعة",
+day:"اليوم",
+subject:"المادة",
+start:"البداية",
+end:"النهاية",
+teacher:"الأستاذ",
+location:"القاعـة / المكان",
+color:"اللون",
+cancel:"إلغاء",
+confirm:"حفظ"
+
+},
+
+darija: {
+
+settings:"الإعدادات",
+language:"اللغة",
+tableTitle:"عنوان الجدول",
+orientation:"اتجاه الجدول",
+vertical:"طولي",
+horizontal:"عرضي",
+numberDays:"عدد أيام القراية",
+dayStart:"بداية النهار",
+dayEnd:"نهاية النهار",
+slotDuration:"مدة الخانات",
+deletePeriod:"مسح فترة خاوية",
+from:"من",
+to:"حتى",
+delete:"مسح",
+deletedPeriods:"الفترات الممسوحة",
+colors:"ألوان المواد",
+addLesson:"زيد حصة",
+save:"حفظ",
+print:"طبع",
+day:"النهار",
+subject:"المادة",
+start:"البداية",
+end:"النهاية",
+teacher:"الأستاذ",
+location:"القاعـة / البلاصة",
+color:"اللون",
+cancel:"إلغاء",
+confirm:"حفظ"
+
+}
+
 };
 
 
 /* =========================================================
-   DEFAULT DATA
+   DAY NAMES
+========================================================= */
+
+const DAYS = {
+
+fr:[
+"Lundi","Mardi","Mercredi",
+"Jeudi","Vendredi","Samedi","Dimanche"
+],
+
+en:[
+"Monday","Tuesday","Wednesday",
+"Thursday","Friday","Saturday","Sunday"
+],
+
+es:[
+"Lunes","Martes","Miércoles",
+"Jueves","Viernes","Sábado","Domingo"
+],
+
+ar:[
+"الإثنين","الثلاثاء","الأربعاء",
+"الخميس","الجمعة","السبت","الأحد"
+],
+
+darija:[
+"الحد","التنين","التلات",
+"الربعة","الخميس","الجمعة","السبت"
+]
+
+};
+
+
+/* =========================================================
+   STATE
 ========================================================= */
 
 let state = {
 
-    language: "fr",
+language:"fr",
 
-    dayStart: "08:00",
+title:"Mon emploi du temps",
 
-    dayEnd: "18:00",
+orientation:"vertical",
 
-    slotDuration: 60,
+numberDays:5,
 
-    days: [
-        "Lundi",
-        "Mardi",
-        "Mercredi",
-        "Jeudi",
-        "Vendredi",
-        "Samedi"
-    ],
+dayStart:"08:00",
 
-    lessons: [],
+dayEnd:"18:00",
 
-    deletedPeriods: [],
+slotDuration:60,
 
-    colors: {
+days:[],
 
-        "Math": "#c9dcf2",
+lessons:[],
 
-        "Français": "#f3c7d9",
+deletedPeriods:[],
 
-        "English": "#d9c8ee",
+colors:{
 
-        "العربية": "#e9b6b6",
+"Math":"#c9dcf2",
+"Français":"#f3c7d9",
+"English":"#d9c8ee",
+"العربية":"#e9b6b6",
+"التربية الإسلامية":"#f4df9e",
+"Philosophie":"#d9c5b2",
+"EPS":"#a8c7b0",
+"Physique":"#b4c9e8",
+"Chimie":"#b4c9e8",
+"SVT":"#c8dfc5"
 
-        "التربية الإسلامية": "#f4df9e",
-
-        "Philosophie": "#d9c5b2",
-
-        "EPS": "#a8c7b0",
-
-        "Physique": "#b4c9e8",
-
-        "Chimie": "#b4c9e8",
-
-        "SVT": "#c8dfc5"
-
-    }
+}
 
 };
-
 
 let editingLessonId = null;
 
 
 /* =========================================================
-   INITIALIZATION
+   INITIALIZE DAYS
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+function createDays(){
+
+    state.days =
+        DAYS[state.language]
+        .slice(0,state.numberDays);
+
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+window.addEventListener("DOMContentLoaded",()=>{
 
     loadData();
 
-    document.getElementById("language").value = state.language;
+    createDaysIfNecessary();
 
-    document.getElementById("dayStart").value = state.dayStart;
-
-    document.getElementById("dayEnd").value = state.dayEnd;
-
-    document.getElementById("slotDuration").value = state.slotDuration;
+    syncControls();
 
     applyLanguage();
 
@@ -1113,50 +1331,136 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+function createDaysIfNecessary(){
+
+    if(
+        !Array.isArray(state.days)
+        ||
+        state.days.length !== state.numberDays
+    ){
+
+        createDays();
+
+    }
+
+}
+
+
+/* =========================================================
+   SYNC UI
+========================================================= */
+
+function syncControls(){
+
+    document.getElementById("language").value =
+        state.language;
+
+    document.getElementById("tableTitle").value =
+        state.title;
+
+    document.getElementById("orientation").value =
+        state.orientation;
+
+    document.getElementById("numberDays").value =
+        state.numberDays;
+
+    document.getElementById("dayStart").value =
+        state.dayStart;
+
+    document.getElementById("dayEnd").value =
+        state.dayEnd;
+
+    document.getElementById("slotDuration").value =
+        state.slotDuration;
+
+}
+
+
 /* =========================================================
    LANGUAGE
 ========================================================= */
 
-function changeLanguage(lang) {
+function changeLanguage(lang){
+
+    /*
+       Preserve the number of days,
+       but translate the day names.
+    */
 
     state.language = lang;
+
+    state.days =
+        DAYS[lang]
+        .slice(0,state.numberDays);
 
     applyLanguage();
 
     renderTimetable();
 
+    renderSubjectColors();
+
     saveData(false);
+
 }
 
 
-function applyLanguage() {
+function applyLanguage(){
 
     const lang = state.language;
 
+    const isArabic =
+        lang === "ar" ||
+        lang === "darija";
+
+
     document.documentElement.lang =
-        lang === "darija" ? "ar" : lang;
+        isArabic ? "ar" : lang;
 
-    if (lang === "ar" || lang === "darija") {
 
-        document.documentElement.dir = "rtl";
+    document.documentElement.dir =
+        isArabic ? "rtl" : "ltr";
 
-        document.body.style.direction = "rtl";
 
-    } else {
+    document.body.style.direction =
+        isArabic ? "rtl" : "ltr";
 
-        document.documentElement.dir = "ltr";
 
-        document.body.style.direction = "ltr";
+    document.querySelectorAll(
+        "[data-i18n]"
+    ).forEach(el=>{
 
-    }
+        const key =
+            el.dataset.i18n;
 
-    document.querySelectorAll("[data-i18n]").forEach(el => {
+        if(T[lang][key]){
 
-        const key = el.dataset.i18n;
+            el.textContent =
+                T[lang][key];
 
-        if (translations[lang][key]) {
+        }
 
-            el.textContent = translations[lang][key];
+    });
+
+
+    /*
+       IMPORTANT:
+       select options are translated too.
+    */
+
+    document.querySelectorAll(
+        "#orientation option"
+    ).forEach(option=>{
+
+        const key =
+            option.dataset.i18n;
+
+        if(
+            key &&
+            T[lang][key]
+        ){
+
+            option.textContent =
+                T[lang][key];
 
         }
 
@@ -1166,69 +1470,114 @@ function applyLanguage() {
 
 
 /* =========================================================
-   TIME FUNCTIONS
+   TITLE
 ========================================================= */
 
-function timeToMinutes(time) {
+function updateTitle(){
 
-    const [h,m] = time.split(":").map(Number);
+    state.title =
+        document.getElementById(
+            "tableTitle"
+        ).value;
 
-    return h * 60 + m;
-}
+    document.getElementById(
+        "printTitle"
+    ).textContent =
+        state.title || " ";
 
+    saveData(false);
 
-function minutesToTime(minutes) {
-
-    minutes = ((minutes % 1440) + 1440) % 1440;
-
-    const h = Math.floor(minutes / 60)
-        .toString()
-        .padStart(2,"0");
-
-    const m = (minutes % 60)
-        .toString()
-        .padStart(2,"0");
-
-    return `${h}:${m}`;
 }
 
 
 /* =========================================================
-   GET TIME SLOTS
+   TIME HELPERS
 ========================================================= */
 
-function getTimeSlots() {
+function timeToMinutes(time){
 
-    const start = timeToMinutes(
-        document.getElementById("dayStart").value
-    );
+    const [h,m] =
+        time.split(":").map(Number);
 
-    const end = timeToMinutes(
-        document.getElementById("dayEnd").value
-    );
+    return h*60+m;
 
-    const duration = Number(
-        document.getElementById("slotDuration").value
-    );
+}
 
-    let slots = [];
 
-    for (
-        let t = start;
-        t < end;
-        t += duration
-    ) {
+function minutesToTime(minutes){
 
-        let slotEnd = Math.min(t + duration, end);
+    const h =
+        Math.floor(minutes/60)
+        .toString()
+        .padStart(2,"0");
+
+    const m =
+        (minutes%60)
+        .toString()
+        .padStart(2,"0");
+
+    return `${h}:${m}`;
+
+}
+
+
+/* =========================================================
+   TIME SLOTS
+========================================================= */
+
+function getTimeSlots(){
+
+    const start =
+        timeToMinutes(
+            document.getElementById("dayStart").value
+        );
+
+    const end =
+        timeToMinutes(
+            document.getElementById("dayEnd").value
+        );
+
+    const duration =
+        Number(
+            document.getElementById("slotDuration").value
+        );
+
+    const slots = [];
+
+    if(
+        duration <= 0 ||
+        end <= start
+    ){
+
+        return slots;
+
+    }
+
+
+    for(
+        let t=start;
+        t<end;
+        t+=duration
+    ){
+
+        const e =
+            Math.min(
+                t+duration,
+                end
+            );
 
         slots.push({
-            start: minutesToTime(t),
-            end: minutesToTime(slotEnd)
+
+            start:minutesToTime(t),
+
+            end:minutesToTime(e)
+
         });
 
     }
 
     return slots;
+
 }
 
 
@@ -1236,55 +1585,67 @@ function getTimeSlots() {
    DELETE PERIOD
 ========================================================= */
 
-function deleteTimePeriod() {
+function deleteTimePeriod(){
 
     const start =
-        document.getElementById("deleteStart").value;
+        document.getElementById(
+            "deleteStart"
+        ).value;
 
     const end =
-        document.getElementById("deleteEnd").value;
-
-    if (!start || !end) {
-
-        showToast("Choisissez les deux horaires.");
-
-        return;
-    }
-
-    if (timeToMinutes(start) >= timeToMinutes(end)) {
-
-        showToast("L'heure de fin doit être après l'heure de début.");
-
-        return;
-    }
+        document.getElementById(
+            "deleteEnd"
+        ).value;
 
 
-    /* Check whether a lesson exists inside the deleted period */
-
-    const conflict = state.lessons.some(lesson => {
-
-        return (
-
-            timeToMinutes(lesson.start) <
-            timeToMinutes(end)
-
-            &&
-
-            timeToMinutes(lesson.end) >
-            timeToMinutes(start)
-
-        );
-
-    });
-
-
-    if (conflict) {
+    if(
+        !start ||
+        !end ||
+        timeToMinutes(start)
+        >=
+        timeToMinutes(end)
+    ){
 
         showToast(
-            "Impossible : une séance existe pendant cette période."
+            "Invalid time period."
         );
 
         return;
+
+    }
+
+
+    /*
+       We don't allow deleting a period
+       containing a lesson.
+    */
+
+    const conflict =
+        state.lessons.some(lesson=>{
+
+            return (
+                timeToMinutes(lesson.start)
+                <
+                timeToMinutes(end)
+
+                &&
+
+                timeToMinutes(lesson.end)
+                >
+                timeToMinutes(start)
+            );
+
+        });
+
+
+    if(conflict){
+
+        showToast(
+            "Une séance existe dans cette période."
+        );
+
+        return;
+
     }
 
 
@@ -1293,162 +1654,231 @@ function deleteTimePeriod() {
         end
     });
 
-    renderTimetable();
-
-    updateDeletedList();
-
-    saveData(false);
-
-    showToast("Période supprimée.");
-}
-
-
-function restorePeriod(index) {
-
-    state.deletedPeriods.splice(index,1);
 
     renderTimetable();
 
     updateDeletedList();
 
     saveData(false);
+
 }
 
 
-function isTimeDeleted(start, end) {
+function isDeleted(start,end){
 
-    const s = timeToMinutes(start);
-    const e = timeToMinutes(end);
+    const s =
+        timeToMinutes(start);
 
-    return state.deletedPeriods.some(period => {
+    const e =
+        timeToMinutes(end);
 
-        const ps = timeToMinutes(period.start);
-        const pe = timeToMinutes(period.end);
 
-        return s >= ps && e <= pe;
+    return state.deletedPeriods.some(period=>{
+
+        return (
+            s >= timeToMinutes(period.start)
+            &&
+            e <= timeToMinutes(period.end)
+        );
 
     });
+
 }
 
 
-function updateDeletedList() {
+function restorePeriod(index){
+
+    state.deletedPeriods.splice(
+        index,
+        1
+    );
+
+    renderTimetable();
+
+    updateDeletedList();
+
+    saveData(false);
+
+}
+
+
+function updateDeletedList(){
 
     const container =
-        document.getElementById("deletedList");
+        document.getElementById(
+            "deletedList"
+        );
 
     container.innerHTML = "";
 
-    state.deletedPeriods.forEach((period,index) => {
 
-        const div = document.createElement("div");
+    state.deletedPeriods.forEach(
+        (period,index)=>{
 
-        div.className = "deleted-item";
+            const div =
+                document.createElement("div");
 
-        div.innerHTML = `
-            ${period.start} → ${period.end}
-            <button onclick="restorePeriod(${index})">×</button>
-        `;
+            div.className =
+                "deleted-item";
 
-        container.appendChild(div);
+            div.innerHTML = `
+                ${period.start} → ${period.end}
+                <button
+                    onclick="restorePeriod(${index})">
+                    ×
+                </button>
+            `;
 
-    });
+            container.appendChild(div);
+
+        }
+    );
 
 }
 
 
 /* =========================================================
-   RENDER TIMETABLE
+   RENDER
 ========================================================= */
 
-function renderTimetable() {
+function renderTimetable(){
 
     state.dayStart =
-        document.getElementById("dayStart").value;
+        document.getElementById(
+            "dayStart"
+        ).value;
 
     state.dayEnd =
-        document.getElementById("dayEnd").value;
+        document.getElementById(
+            "dayEnd"
+        ).value;
 
     state.slotDuration =
-        Number(document.getElementById("slotDuration").value);
+        Number(
+            document.getElementById(
+                "slotDuration"
+            ).value
+        );
 
+    state.orientation =
+        document.getElementById(
+            "orientation"
+        ).value;
+
+
+    document.getElementById(
+        "printTitle"
+    ).textContent =
+        state.title || " ";
+
+
+    if(state.orientation === "horizontal"){
+
+        renderHorizontal();
+
+    }else{
+
+        renderVertical();
+
+    }
+
+}
+
+
+/* =========================================================
+   VERTICAL TABLE
+   Days = columns
+   Time = rows
+========================================================= */
+
+function renderVertical(){
 
     const table =
-        document.getElementById("timetable");
+        document.getElementById(
+            "timetable"
+        );
 
     table.innerHTML = "";
 
 
-    const slots = getTimeSlots();
+    const slots =
+        getTimeSlots();
 
-
-    /* HEADER */
 
     const thead =
         document.createElement("thead");
 
-    const headerRow =
+    const header =
         document.createElement("tr");
 
 
-    const emptyHeader =
+    const timeHead =
         document.createElement("th");
 
-    emptyHeader.textContent = "⏰";
+    timeHead.textContent = "⏰";
 
-    headerRow.appendChild(emptyHeader);
+    header.appendChild(timeHead);
 
 
-    state.days.forEach(day => {
+    state.days.forEach(day=>{
 
         const th =
             document.createElement("th");
 
-        th.textContent = day;
+        th.textContent =
+            day;
 
-        headerRow.appendChild(th);
+        header.appendChild(th);
 
     });
 
 
-    thead.appendChild(headerRow);
+    thead.appendChild(header);
 
     table.appendChild(thead);
 
-
-    /* BODY */
 
     const tbody =
         document.createElement("tbody");
 
 
     /*
-       We use a normal time grid.
-       A lesson spanning several hours gets rowspan,
-       therefore it becomes ONE large merged cell.
+       rowspan tracking
     */
 
-    let skip = {};
+    const skip =
+        {};
 
-    slots.forEach((slot, slotIndex) => {
+
+    slots.forEach((slot,index)=>{
 
         const row =
             document.createElement("tr");
 
 
-        const timeCell =
+        const time =
             document.createElement("td");
 
-        timeCell.className = "time-cell";
+        time.className =
+            "time-cell";
 
-        timeCell.innerHTML =
-            `<strong>${slot.start}</strong><br>↓<br>${slot.end}`;
+        time.innerHTML =
+            `<strong>
+                ${slot.start}
+             </strong>
+             <br>
+             ↓
+             <br>
+             ${slot.end}`;
 
-        row.appendChild(timeCell);
+        row.appendChild(time);
 
 
-        state.days.forEach((day, dayIndex) => {
+        state.days.forEach(
+            (day,dayIndex)=>{
 
-            if (skip[dayIndex] > 0) {
+
+            if(skip[dayIndex]){
 
                 skip[dayIndex]--;
 
@@ -1460,134 +1890,139 @@ function renderTimetable() {
             const cell =
                 document.createElement("td");
 
-            cell.className = "day-cell";
+            cell.className =
+                "day-cell";
 
 
             /*
-              Find lesson that starts exactly here.
+               A lesson can start only at
+               a generated time slot.
             */
 
             const lesson =
-                state.lessons.find(l =>
-
-                    l.day === day
-
-                    &&
-
+                state.lessons.find(
+                    l =>
+                    l.day === day &&
                     l.start === slot.start
-
                 );
 
 
-            if (lesson) {
-
-                const lessonStart =
-                    timeToMinutes(lesson.start);
-
-                const lessonEnd =
-                    timeToMinutes(lesson.end);
-
+            if(lesson){
 
                 const duration =
-                    lessonEnd - lessonStart;
+                    timeToMinutes(lesson.end)
+                    -
+                    timeToMinutes(lesson.start);
 
 
                 const slotMinutes =
                     Number(state.slotDuration);
 
 
+                let rows =
+                    Math.ceil(
+                        duration /
+                        slotMinutes
+                    );
+
+
                 /*
-                   Number of rows to merge.
+                   Never span a deleted period.
                 */
 
-                let rowSpan =
-                    Math.ceil(duration / slotMinutes);
+                let possibleRows = 0;
 
 
-                /*
-                   Don't merge through deleted periods.
-                */
-
-                let validRows = 0;
-
-                for (
-                    let i = slotIndex;
-                    i < slots.length;
+                for(
+                    let i=index;
+                    i<slots.length;
                     i++
-                ) {
+                ){
 
-                    const current =
-                        slots[i];
-
-                    if (
-                        isTimeDeleted(
-                            current.start,
-                            current.end
+                    if(
+                        isDeleted(
+                            slots[i].start,
+                            slots[i].end
                         )
-                    ) break;
+                    ){
 
-
-                    const currentStart =
-                        timeToMinutes(current.start);
-
-                    if (currentStart >= lessonEnd)
                         break;
 
-                    validRows++;
+                    }
+
+
+                    if(
+                        timeToMinutes(
+                            slots[i].start
+                        )
+                        >=
+                        timeToMinutes(
+                            lesson.end
+                        )
+                    ){
+
+                        break;
+
+                    }
+
+
+                    possibleRows++;
 
                 }
 
 
-                rowSpan =
-                    Math.max(1, validRows);
+                rows =
+                    Math.min(
+                        rows,
+                        possibleRows
+                    );
 
 
-                cell.rowSpan = rowSpan;
+                rows =
+                    Math.max(1,rows);
+
+
+                cell.rowSpan =
+                    rows;
 
 
                 skip[dayIndex] =
-                    rowSpan - 1;
+                    rows-1;
 
 
-                const lessonDiv =
-                    createLessonElement(lesson);
+                cell.appendChild(
+                    createLesson(lesson)
+                );
 
 
-                cell.appendChild(lessonDiv);
+            }else{
 
 
-            } else {
-
-                /*
-                   Check if this time belongs
-                   to a deleted period.
-                */
-
-                if (
-                    isTimeDeleted(
+                if(
+                    isDeleted(
                         slot.start,
                         slot.end
                     )
-                ) {
+                ){
 
-                    cell.classList.add("deleted-time");
+                    cell.classList.add(
+                        "deleted-time"
+                    );
 
-                } else {
+                }else{
 
-                    cell.classList.add("empty-cell");
+                    cell.classList.add(
+                        "empty-cell"
+                    );
 
-                    cell.addEventListener(
-                        "dblclick",
-                        () => {
-
+                    cell.ondblclick =
+                        ()=>{
                             openLessonModal({
                                 day,
-                                start: slot.start,
-                                end: slot.end
+                                start:slot.start,
+                                end:slot.end
                             });
-
-                        }
-                    );
+                        };
 
                 }
 
@@ -1610,15 +2045,267 @@ function renderTimetable() {
 
 
 /* =========================================================
-   LESSON ELEMENT
+   HORIZONTAL TABLE
+   Days = rows
+   Time = columns
 ========================================================= */
 
-function createLessonElement(lesson) {
+function renderHorizontal(){
+
+    const table =
+        document.getElementById(
+            "timetable"
+        );
+
+    table.innerHTML = "";
+
+
+    const slots =
+        getTimeSlots();
+
+
+    const thead =
+        document.createElement("thead");
+
+    const header =
+        document.createElement("tr");
+
+
+    const dayHead =
+        document.createElement("th");
+
+    dayHead.textContent =
+        "📅";
+
+
+    header.appendChild(dayHead);
+
+
+    slots.forEach(slot=>{
+
+        const th =
+            document.createElement("th");
+
+        th.innerHTML =
+            `${slot.start}<br>↓<br>${slot.end}`;
+
+        header.appendChild(th);
+
+    });
+
+
+    thead.appendChild(header);
+
+    table.appendChild(thead);
+
+
+    const tbody =
+        document.createElement("tbody");
+
+
+    /*
+       Each lesson spanning several time slots
+       becomes ONE horizontal merged cell.
+    */
+
+    state.days.forEach(day=>{
+
+        const row =
+            document.createElement("tr");
+
+
+        const dayCell =
+            document.createElement("td");
+
+        dayCell.className =
+            "time-cell";
+
+        dayCell.innerHTML =
+            `<strong>${day}</strong>`;
+
+
+        row.appendChild(dayCell);
+
+
+        let skip = 0;
+
+
+        slots.forEach((slot,index)=>{
+
+            if(skip > 0){
+
+                skip--;
+
+                return;
+
+            }
+
+
+            const cell =
+                document.createElement("td");
+
+            cell.className =
+                "day-cell";
+
+
+            const lesson =
+                state.lessons.find(
+                    l =>
+                    l.day === day &&
+                    l.start === slot.start
+                );
+
+
+            if(lesson){
+
+                const duration =
+                    timeToMinutes(lesson.end)
+                    -
+                    timeToMinutes(lesson.start);
+
+
+                const slotMinutes =
+                    Number(
+                        state.slotDuration
+                    );
+
+
+                let columns =
+                    Math.ceil(
+                        duration /
+                        slotMinutes
+                    );
+
+
+                let possible =
+                    0;
+
+
+                for(
+                    let i=index;
+                    i<slots.length;
+                    i++
+                ){
+
+                    if(
+                        isDeleted(
+                            slots[i].start,
+                            slots[i].end
+                        )
+                    ){
+
+                        break;
+
+                    }
+
+
+                    if(
+                        timeToMinutes(
+                            slots[i].start
+                        )
+                        >=
+                        timeToMinutes(
+                            lesson.end
+                        )
+                    ){
+
+                        break;
+
+                    }
+
+
+                    possible++;
+
+                }
+
+
+                columns =
+                    Math.min(
+                        columns,
+                        possible
+                    );
+
+
+                columns =
+                    Math.max(
+                        1,
+                        columns
+                    );
+
+
+                cell.colSpan =
+                    columns;
+
+
+                skip =
+                    columns-1;
+
+
+                cell.appendChild(
+                    createLesson(lesson)
+                );
+
+
+            }else{
+
+
+                if(
+                    isDeleted(
+                        slot.start,
+                        slot.end
+                    )
+                ){
+
+                    cell.classList.add(
+                        "deleted-time"
+                    );
+
+                }else{
+
+                    cell.classList.add(
+                        "empty-cell"
+                    );
+
+                    cell.ondblclick =
+                        ()=>{
+                            openLessonModal({
+                                day,
+                                start:slot.start,
+                                end:slot.end
+                            });
+                        };
+
+                }
+
+            }
+
+
+            row.appendChild(cell);
+
+        });
+
+
+        tbody.appendChild(row);
+
+    });
+
+
+    table.appendChild(tbody);
+
+}
+
+
+/* =========================================================
+   LESSON CARD
+========================================================= */
+
+function createLesson(lesson){
 
     const div =
         document.createElement("div");
 
-    div.className = "lesson";
+    div.className =
+        "lesson";
 
 
     const duration =
@@ -1627,43 +2314,52 @@ function createLessonElement(lesson) {
         timeToMinutes(lesson.start);
 
 
-    if (duration >= 120) {
+    if(duration >= 120){
 
-        div.classList.add("lesson-long");
+        div.classList.add(
+            "lesson-long"
+        );
 
     }
 
 
     const color =
-        lesson.color
-        ||
-        getSubjectColor(lesson.subject);
+        lesson.color ||
+        getSubjectColor(
+            lesson.subject
+        );
 
 
-    div.style.background = color;
+    div.style.background =
+        color;
 
-
-    /*
-       Calculate a readable text color.
-    */
 
     div.style.color =
-        getContrastColor(color);
+        contrast(color);
 
 
     let info = "";
 
-    if (lesson.teacher) {
 
-        info += lesson.teacher;
+    if(lesson.teacher){
+
+        info +=
+            escapeHTML(
+                lesson.teacher
+            );
 
     }
 
-    if (lesson.room) {
 
-        if (info) info += " • ";
+    if(lesson.location){
 
-        info += lesson.room;
+        if(info)
+            info += " • ";
+
+        info +=
+            escapeHTML(
+                lesson.location
+            );
 
     }
 
@@ -1671,10 +2367,12 @@ function createLessonElement(lesson) {
     div.innerHTML = `
 
         <div class="lesson-name">
-            ${escapeHTML(lesson.subject)}
+            ${escapeHTML(
+                lesson.subject
+            )}
         </div>
 
-        <div class="lesson-info">
+        <div class="lesson-time">
             ${lesson.start} – ${lesson.end}
         </div>
 
@@ -1682,8 +2380,8 @@ function createLessonElement(lesson) {
             info
             ?
             `<div class="lesson-info">
-                ${escapeHTML(info)}
-            </div>`
+                ${info}
+             </div>`
             :
             ""
         }
@@ -1691,144 +2389,11 @@ function createLessonElement(lesson) {
     `;
 
 
-    div.onclick = () =>
-        openLessonModal(lesson);
+    div.onclick =
+        ()=>openLessonModal(lesson);
 
 
     return div;
-}
-
-
-/* =========================================================
-   SUBJECT COLORS
-========================================================= */
-
-function getSubjectColor(subject) {
-
-    if (!state.colors[subject]) {
-
-        state.colors[subject] =
-            generatePastelColor();
-
-    }
-
-    return state.colors[subject];
-}
-
-
-function generatePastelColor() {
-
-    const colors = [
-        "#c9dcf2",
-        "#f3c7d9",
-        "#d9c8ee",
-        "#e9b6b6",
-        "#f4df9e",
-        "#d9c5b2",
-        "#a8c7b0",
-        "#b4c9e8",
-        "#c8dfc5",
-        "#e7c9e5",
-        "#c8e2df"
-    ];
-
-    return colors[
-        Math.floor(Math.random() * colors.length)
-    ];
-}
-
-
-function renderSubjectColors() {
-
-    const container =
-        document.getElementById("subjectList");
-
-    container.innerHTML = "";
-
-
-    const subjects =
-        Object.keys(state.colors);
-
-
-    state.lessons.forEach(lesson => {
-
-        if (!subjects.includes(lesson.subject)) {
-
-            subjects.push(lesson.subject);
-
-        }
-
-    });
-
-
-    subjects.forEach(subject => {
-
-        const item =
-            document.createElement("div");
-
-        item.className = "subject-item";
-
-
-        const colorInput =
-            document.createElement("input");
-
-        colorInput.type = "color";
-
-        colorInput.className =
-            "color-circle";
-
-        colorInput.value =
-            getSubjectColor(subject);
-
-
-        colorInput.oninput = () => {
-
-            state.colors[subject] =
-                colorInput.value;
-
-
-            /*
-               Update lessons using this
-               subject unless they have
-               their own custom color.
-            */
-
-            state.lessons.forEach(lesson => {
-
-                if (
-                    lesson.subject === subject
-                    &&
-                    !lesson.customColor
-                ) {
-
-                    lesson.color =
-                        colorInput.value;
-
-                }
-
-            });
-
-
-            renderTimetable();
-
-            saveData(false);
-
-        };
-
-
-        const name =
-            document.createElement("span");
-
-        name.textContent = subject;
-
-
-        item.appendChild(colorInput);
-
-        item.appendChild(name);
-
-        container.appendChild(item);
-
-    });
 
 }
 
@@ -1837,10 +2402,16 @@ function renderSubjectColors() {
    MODAL
 ========================================================= */
 
-function openLessonModal(lesson = null) {
+function openLessonModal(
+    preset=null
+){
 
     editingLessonId =
-        lesson ? lesson.id : null;
+        preset && preset.id
+        ?
+        preset.id
+        :
+        null;
 
 
     document.getElementById(
@@ -1849,22 +2420,28 @@ function openLessonModal(lesson = null) {
 
 
     const daySelect =
-        document.getElementById("lessonDay");
+        document.getElementById(
+            "lessonDay"
+        );
 
 
     daySelect.innerHTML = "";
 
 
-    state.days.forEach(day => {
+    state.days.forEach(day=>{
 
         const option =
             document.createElement("option");
 
-        option.value = day;
+        option.value =
+            day;
 
-        option.textContent = day;
+        option.textContent =
+            day;
 
-        daySelect.appendChild(option);
+        daySelect.appendChild(
+            option
+        );
 
     });
 
@@ -1872,61 +2449,25 @@ function openLessonModal(lesson = null) {
     document.getElementById(
         "deleteLessonBtn"
     ).style.display =
-        lesson ? "inline-block" : "none";
+        editingLessonId
+        ?
+        "inline-block"
+        :
+        "none";
 
 
-    if (lesson) {
+    if(editingLessonId){
 
-        document.getElementById(
-            "modalTitle"
-        ).textContent =
-            "Modifier la séance";
-
-
-        document.getElementById(
-            "lessonDay"
-        ).value =
-            lesson.day;
+        const lesson =
+            state.lessons.find(
+                l =>
+                l.id === editingLessonId
+            );
 
 
-        document.getElementById(
-            "lessonSubject"
-        ).value =
-            lesson.subject;
+        fillModal(lesson);
 
-
-        document.getElementById(
-            "lessonStart"
-        ).value =
-            lesson.start;
-
-
-        document.getElementById(
-            "lessonEnd"
-        ).value =
-            lesson.end;
-
-
-        document.getElementById(
-            "lessonTeacher"
-        ).value =
-            lesson.teacher || "";
-
-
-        document.getElementById(
-            "lessonRoom"
-        ).value =
-            lesson.room || "";
-
-
-        document.getElementById(
-            "lessonColor"
-        ).value =
-            lesson.color ||
-            getSubjectColor(lesson.subject);
-
-
-    } else {
+    }else{
 
         document.getElementById(
             "modalTitle"
@@ -1937,40 +2478,49 @@ function openLessonModal(lesson = null) {
         document.getElementById(
             "lessonDay"
         ).value =
+            preset?.day ||
             state.days[0];
 
 
         document.getElementById(
             "lessonSubject"
-        ).value = "";
+        ).value =
+            "";
 
 
         document.getElementById(
             "lessonStart"
         ).value =
+            preset?.start ||
             state.dayStart;
-
-
-        const firstSlot =
-            getTimeSlots()[0];
 
 
         document.getElementById(
             "lessonEnd"
         ).value =
-            firstSlot
-            ? firstSlot.end
-            : "09:00";
+            preset?.end ||
+            minutesToTime(
+                timeToMinutes(
+                    preset?.start ||
+                    state.dayStart
+                )
+                +
+                Number(
+                    state.slotDuration
+                )
+            );
 
 
         document.getElementById(
             "lessonTeacher"
-        ).value = "";
+        ).value =
+            "";
 
 
         document.getElementById(
-            "lessonRoom"
-        ).value = "";
+            "lessonLocation"
+        ).value =
+            "";
 
 
         document.getElementById(
@@ -1986,7 +2536,62 @@ function openLessonModal(lesson = null) {
 }
 
 
-function closeLessonModal() {
+function fillModal(lesson){
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        "Modifier la séance";
+
+
+    document.getElementById(
+        "lessonDay"
+    ).value =
+        lesson.day;
+
+
+    document.getElementById(
+        "lessonSubject"
+    ).value =
+        lesson.subject;
+
+
+    document.getElementById(
+        "lessonStart"
+    ).value =
+        lesson.start;
+
+
+    document.getElementById(
+        "lessonEnd"
+    ).value =
+        lesson.end;
+
+
+    document.getElementById(
+        "lessonTeacher"
+    ).value =
+        lesson.teacher || "";
+
+
+    document.getElementById(
+        "lessonLocation"
+    ).value =
+        lesson.location || "";
+
+
+    document.getElementById(
+        "lessonColor"
+    ).value =
+        lesson.color ||
+        getSubjectColor(
+            lesson.subject
+        );
+
+}
+
+
+function closeLessonModal(){
 
     document.getElementById(
         "lessonModal"
@@ -1997,23 +2602,22 @@ function closeLessonModal() {
 }
 
 
-document.getElementById("lessonColor")
-.addEventListener(
+document.getElementById(
+    "lessonColor"
+).addEventListener(
     "input",
     updateColorText
 );
 
 
-function updateColorText() {
-
-    const color =
-        document.getElementById(
-            "lessonColor"
-        ).value;
+function updateColorText(){
 
     document.getElementById(
         "colorHex"
-    ).textContent = color;
+    ).textContent =
+        document.getElementById(
+            "lessonColor"
+        ).value;
 
 }
 
@@ -2022,43 +2626,37 @@ function updateColorText() {
    SAVE LESSON
 ========================================================= */
 
-function saveLesson() {
+function saveLesson(){
 
     const day =
         document.getElementById(
             "lessonDay"
         ).value;
 
-
     const subject =
         document.getElementById(
             "lessonSubject"
         ).value.trim();
-
 
     const start =
         document.getElementById(
             "lessonStart"
         ).value;
 
-
     const end =
         document.getElementById(
             "lessonEnd"
         ).value;
-
 
     const teacher =
         document.getElementById(
             "lessonTeacher"
         ).value.trim();
 
-
-    const room =
+    const location =
         document.getElementById(
-            "lessonRoom"
+            "lessonLocation"
         ).value.trim();
-
 
     const color =
         document.getElementById(
@@ -2066,146 +2664,154 @@ function saveLesson() {
         ).value;
 
 
-    if (!subject) {
+    if(!subject){
 
-        showToast("Veuillez entrer une matière.");
+        showToast(
+            "Veuillez entrer une matière."
+        );
 
         return;
+
     }
 
 
-    if (
+    if(
         !start ||
         !end ||
         timeToMinutes(start)
         >=
         timeToMinutes(end)
-    ) {
+    ){
 
-        showToast("Vérifiez les horaires.");
+        showToast(
+            "Vérifiez les horaires."
+        );
 
         return;
+
     }
 
 
     /*
-       Check deleted period.
+       Check deleted periods.
     */
 
-    if (
-        state.deletedPeriods.some(period => {
+    const deletedConflict =
+        state.deletedPeriods.some(period=>{
 
             return (
-
                 timeToMinutes(start)
                 <
                 timeToMinutes(period.end)
 
                 &&
-
                 timeToMinutes(end)
                 >
                 timeToMinutes(period.start)
-
             );
 
-        })
-    ) {
+        });
+
+
+    if(deletedConflict){
 
         showToast(
             "Cette séance traverse une période supprimée."
         );
 
         return;
+
     }
 
 
     /*
-       Check overlap with other lessons.
+       Check overlap.
     */
 
     const overlap =
-        state.lessons.some(existing => {
+        state.lessons.some(existing=>{
 
-            if (
+            if(
                 editingLessonId
                 &&
                 existing.id === editingLessonId
-            ) {
-                return false;
-            }
-
-
-            if (existing.day !== day) {
+            ){
 
                 return false;
 
             }
 
 
-            const a =
-                timeToMinutes(start);
+            if(existing.day !== day){
 
-            const b =
-                timeToMinutes(end);
+                return false;
 
-            const c =
-                timeToMinutes(existing.start);
-
-            const d =
-                timeToMinutes(existing.end);
+            }
 
 
-            return a < d && b > c;
+            return (
+
+                timeToMinutes(start)
+                <
+                timeToMinutes(existing.end)
+
+                &&
+
+                timeToMinutes(end)
+                >
+                timeToMinutes(existing.start)
+
+            );
 
         });
 
 
-    if (overlap) {
+    if(overlap){
 
         showToast(
             "Cette séance chevauche une autre séance."
         );
 
         return;
+
     }
 
 
-    /*
-       If editing
-    */
-
-    if (editingLessonId) {
+    if(editingLessonId){
 
         const lesson =
             state.lessons.find(
-                l => l.id === editingLessonId
+                l =>
+                l.id === editingLessonId
             );
 
 
-        if (lesson) {
+        if(lesson){
 
-            lesson.day = day;
+            lesson.day =
+                day;
 
-            lesson.subject = subject;
+            lesson.subject =
+                subject;
 
-            lesson.start = start;
+            lesson.start =
+                start;
 
-            lesson.end = end;
+            lesson.end =
+                end;
 
-            lesson.teacher = teacher;
+            lesson.teacher =
+                teacher;
 
-            lesson.room = room;
+            lesson.location =
+                location;
 
-            lesson.color = color;
-
-            lesson.customColor = true;
+            lesson.color =
+                color;
 
         }
 
-    }
-
-    else {
+    }else{
 
         state.lessons.push({
 
@@ -2222,11 +2828,9 @@ function saveLesson() {
 
             teacher,
 
-            room,
+            location,
 
-            color,
-
-            customColor: true
+            color
 
         });
 
@@ -2234,19 +2838,16 @@ function saveLesson() {
 
 
     /*
-       Automatically create a subject color
-       if necessary.
+       Remember subject color.
     */
 
-    if (!state.colors[subject]) {
-
-        state.colors[subject] =
-            color;
-
-    }
+    state.colors[subject] =
+        color;
 
 
     renderSubjectColors();
+
+    updateSubjectOptions();
 
     renderTimetable();
 
@@ -2254,7 +2855,9 @@ function saveLesson() {
 
     closeLessonModal();
 
-    showToast("Séance enregistrée.");
+    showToast(
+        "Séance enregistrée ✓"
+    );
 
 }
 
@@ -2263,138 +2866,68 @@ function saveLesson() {
    DELETE LESSON
 ========================================================= */
 
-function deleteCurrentLesson() {
+function deleteCurrentLesson(){
 
-    if (!editingLessonId)
+    if(!editingLessonId)
         return;
-
-
-    state.lessons =
-        state.lessons.filter(
-            l => l.id !== editingLessonId
-        );
-
-
-    renderSubjectColors();
-
-    renderTimetable();
-
-    saveData(false);
-
-    closeLessonModal();
-
-    showToast("Séance supprimée.");
-
-}
-
-
-/* =========================================================
-   DAYS
-========================================================= */
-
-function addDay() {
-
-    const names = {
-
-        fr: [
-            "Lundi",
-            "Mardi",
-            "Mercredi",
-            "Jeudi",
-            "Vendredi",
-            "Samedi",
-            "Dimanche"
-        ],
-
-        en: [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday"
-        ],
-
-        es: [
-            "Lunes",
-            "Martes",
-            "Miércoles",
-            "Jueves",
-            "Viernes",
-            "Sábado",
-            "Domingo"
-        ],
-
-        ar: [
-            "الإثنين",
-            "الثلاثاء",
-            "الأربعاء",
-            "الخميس",
-            "الجمعة",
-            "السبت",
-            "الأحد"
-        ],
-
-        darija: [
-            "الحد",
-            "التنين",
-            "التلات",
-            "الربعة",
-            "الخميس",
-            "الجمعة",
-            "السبت"
-        ]
-
-    };
-
-
-    const current =
-        state.days.length;
-
-
-    if (current >= 7) {
-
-        showToast("Maximum 7 jours.");
-
-        return;
-    }
-
-
-    state.days.push(
-        names[state.language][current]
-    );
-
-
-    renderTimetable();
-
-    saveData(false);
-
-}
-
-
-function removeDay() {
-
-    if (state.days.length <= 1) {
-
-        showToast("Il faut garder au moins un jour.");
-
-        return;
-    }
-
-
-    const removed =
-        state.days[state.days.length - 1];
-
-
-    state.days.pop();
 
 
     state.lessons =
         state.lessons.filter(
             lesson =>
-                lesson.day !== removed
+            lesson.id !== editingLessonId
         );
+
+
+    renderTimetable();
+
+    renderSubjectColors();
+
+    saveData(false);
+
+    closeLessonModal();
+
+    showToast(
+        "Séance supprimée."
+    );
+
+}
+
+
+/* =========================================================
+   NUMBER OF DAYS
+========================================================= */
+
+function changeNumberOfDays(){
+
+    const number =
+        Number(
+            document.getElementById(
+                "numberDays"
+            ).value
+        );
+
+
+    state.numberDays =
+        number;
+
+
+    /*
+       Remove days that no longer exist.
+    */
+
+    state.lessons =
+        state.lessons.filter(
+            lesson =>
+            DAYS[state.language]
+            .slice(0,number)
+            .includes(lesson.day)
+        );
+
+
+    state.days =
+        DAYS[state.language]
+        .slice(0,number);
 
 
     renderTimetable();
@@ -2407,72 +2940,298 @@ function removeDay() {
 
 
 /* =========================================================
-   SAVE / LOAD
+   SUBJECT COLORS
 ========================================================= */
 
-function saveData(showMessage = true) {
+function getSubjectColor(subject){
+
+    if(
+        !state.colors[subject]
+    ){
+
+        state.colors[subject] =
+            randomPastel();
+
+    }
+
+
+    return state.colors[subject];
+
+}
+
+
+function randomPastel(){
+
+    const colors = [
+
+        "#c9dcf2",
+        "#f3c7d9",
+        "#d9c8ee",
+        "#e9b6b6",
+        "#f4df9e",
+        "#d9c5b2",
+        "#a8c7b0",
+        "#b4c9e8",
+        "#c8dfc5",
+        "#e7c9e5",
+        "#c8e2df"
+
+    ];
+
+
+    return colors[
+        Math.floor(
+            Math.random()*colors.length
+        )
+    ];
+
+}
+
+
+function renderSubjectColors(){
+
+    const container =
+        document.getElementById(
+            "subjectList"
+        );
+
+
+    container.innerHTML = "";
+
+
+    const subjects =
+        Object.keys(state.colors);
+
+
+    state.lessons.forEach(
+        lesson=>{
+
+            if(
+                !subjects.includes(
+                    lesson.subject
+                )
+            ){
+
+                subjects.push(
+                    lesson.subject
+                );
+
+            }
+
+        }
+    );
+
+
+    subjects.forEach(subject=>{
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "subject-item";
+
+
+        const color =
+            document.createElement("input");
+
+        color.type =
+            "color";
+
+        color.className =
+            "color-circle";
+
+        color.value =
+            getSubjectColor(
+                subject
+            );
+
+
+        color.oninput = ()=>{
+
+            state.colors[subject] =
+                color.value;
+
+
+            /*
+               Update all lessons
+               of this subject.
+            */
+
+            state.lessons.forEach(
+                lesson=>{
+
+                    if(
+                        lesson.subject === subject
+                    ){
+
+                        lesson.color =
+                            color.value;
+
+                    }
+
+                }
+            );
+
+
+            renderTimetable();
+
+            saveData(false);
+
+        };
+
+
+        const name =
+            document.createElement("span");
+
+        name.textContent =
+            subject;
+
+
+        item.appendChild(color);
+
+        item.appendChild(name);
+
+        container.appendChild(item);
+
+    });
+
+
+    updateSubjectOptions();
+
+}
+
+
+/* =========================================================
+   SUBJECT AUTOCOMPLETE
+========================================================= */
+
+function updateSubjectOptions(){
+
+    const list =
+        document.getElementById(
+            "subjectOptions"
+        );
+
+
+    if(!list)
+        return;
+
+
+    list.innerHTML = "";
+
+
+    Object.keys(
+        state.colors
+    ).forEach(subject=>{
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            subject;
+
+        list.appendChild(
+            option
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+function saveData(show=true){
+
+    state.title =
+        document.getElementById(
+            "tableTitle"
+        ).value;
+
+
+    state.orientation =
+        document.getElementById(
+            "orientation"
+        ).value;
+
 
     state.dayStart =
-        document.getElementById("dayStart").value;
+        document.getElementById(
+            "dayStart"
+        ).value;
+
 
     state.dayEnd =
-        document.getElementById("dayEnd").value;
+        document.getElementById(
+            "dayEnd"
+        ).value;
+
 
     state.slotDuration =
         Number(
-            document.getElementById("slotDuration").value
+            document.getElementById(
+                "slotDuration"
+            ).value
         );
 
 
     localStorage.setItem(
-        "yasTimetable",
+        "YAS_TIMETABLE_DATA",
         JSON.stringify(state)
     );
 
 
-    if (showMessage) {
+    if(show){
 
-        showToast("Tableau sauvegardé ✓");
+        showToast(
+            "Tableau sauvegardé ✓"
+        );
 
     }
 
 }
 
 
-function loadData() {
+/* =========================================================
+   LOAD
+========================================================= */
+
+function loadData(){
 
     const saved =
         localStorage.getItem(
-            "yasTimetable"
+            "YAS_TIMETABLE_DATA"
         );
 
 
-    if (!saved)
+    if(!saved){
+
+        createDays();
+
         return;
 
+    }
 
-    try {
+
+    try{
 
         const data =
             JSON.parse(saved);
 
 
-        state = {
+        state =
+            Object.assign(
+                state,
+                data
+            );
 
-            ...state,
+    }catch(error){
 
-            ...data
+        console.error(error);
 
-        };
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Impossible de charger les données",
-            error
-        );
+        createDays();
 
     }
 
@@ -2480,366 +3239,328 @@ function loadData() {
 
 
 /* =========================================================
-   NEW TIMETABLE
+   NEW TABLE
 ========================================================= */
 
-function newTimetable() {
-
-    const yes =
-        confirm(
-            "Créer un nouveau tableau ? Les données actuelles seront supprimées."
-        );
-
-
-    if (!yes)
-        return;
-
+function newTable(){
 
     state.lessons = [];
 
     state.deletedPeriods = [];
 
-
-    localStorage.removeItem(
-        "yasTimetable"
-    );
-
+    saveData(false);
 
     renderTimetable();
 
-    renderSubjectColors();
-
     updateDeletedList();
-
-    showToast("Nouveau tableau créé.");
 
 }
 
 
 /* =========================================================
-   PNG EXPORT
+   EXPORT PNG - FULL TABLE
+   No external library.
 ========================================================= */
 
-async function exportPNG() {
+async function exportPNG(){
 
     const table =
-        document.getElementById("timetable");
+        document.getElementById(
+            "timetable"
+        );
 
 
     /*
-       Temporarily remove horizontal limitations.
-       This prevents the exported image from being
-       cropped by the scroll container.
+       Native SVG foreignObject method.
+       This keeps the entire table,
+       including merged cells.
     */
 
-    const wrapper =
-        table.parentElement;
+    try{
+
+        const rect =
+            table.getBoundingClientRect();
 
 
-    const oldOverflow =
-        wrapper.style.overflow;
+        const width =
+            table.scrollWidth;
 
 
-    const oldWidth =
-        table.style.width;
+        const height =
+            table.scrollHeight;
 
 
-    wrapper.style.overflow = "visible";
-
-    table.style.width = "max-content";
-
-
-    try {
-
-        const canvas =
-            await html2canvas(table, {
-
-                scale: 3,
-
-                useCORS: true,
-
-                backgroundColor: "#ffffff",
-
-                logging: false,
-
-                windowWidth:
-                    Math.max(
-                        document.documentElement.scrollWidth,
-                        table.scrollWidth
-                    )
-
-            });
+        const clone =
+            table.cloneNode(true);
 
 
-        const link =
-            document.createElement("a");
+        const wrapper =
+            document.createElement("div");
 
 
-        link.download =
-            "YAS-Timetable.png";
+        wrapper.style.position =
+            "absolute";
+
+        wrapper.style.left =
+            "-100000px";
+
+        wrapper.style.top =
+            "0";
+
+        wrapper.style.background =
+            "white";
+
+        wrapper.style.width =
+            width + "px";
+
+        wrapper.style.padding =
+            "25px";
 
 
-        link.href =
-            canvas.toDataURL(
-                "image/png",
-                1.0
+        const title =
+            document.createElement("div");
+
+
+        title.textContent =
+            state.title;
+
+
+        title.style.fontFamily =
+            getComputedStyle(
+                document.body
+            ).fontFamily;
+
+
+        title.style.fontSize =
+            "28px";
+
+        title.style.fontWeight =
+            "800";
+
+        title.style.textAlign =
+            "center";
+
+        title.style.marginBottom =
+            "20px";
+
+
+        wrapper.appendChild(title);
+
+        wrapper.appendChild(clone);
+
+        document.body.appendChild(wrapper);
+
+
+        const w =
+            wrapper.scrollWidth;
+
+
+        const h =
+            wrapper.scrollHeight;
+
+
+        const svg = `
+
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="${w}"
+            height="${h}"
+        >
+
+        <foreignObject
+            width="100%"
+            height="100%"
+        >
+
+        <div
+            xmlns="http://www.w3.org/1999/xhtml"
+            style="
+                width:${w}px;
+                min-height:${h}px;
+                background:white;
+                padding:25px;
+                font-family:Arial,sans-serif;
+            "
+        >
+
+        ${wrapper.innerHTML}
+
+        </div>
+
+        </foreignObject>
+
+        </svg>
+        `;
+
+
+        const blob =
+            new Blob(
+                [svg],
+                {
+                    type:
+                        "image/svg+xml;charset=utf-8"
+                }
             );
 
 
-        link.click();
+        const url =
+            URL.createObjectURL(blob);
 
 
-        showToast("Image exportée ✓");
+        const image =
+            new Image();
+
+
+        image.onload = ()=>{
+
+            const scale = 2;
+
+
+            const canvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            canvas.width =
+                w * scale;
+
+            canvas.height =
+                h * scale;
+
+
+            const ctx =
+                canvas.getContext(
+                    "2d"
+                );
+
+
+            ctx.fillStyle =
+                "white";
+
+            ctx.fillRect(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            ctx.scale(
+                scale,
+                scale
+            );
+
+
+            ctx.drawImage(
+                image,
+                0,
+                0
+            );
+
+
+            canvas.toBlob(
+                blob=>{
+
+                    const a =
+                        document.createElement(
+                            "a"
+                        );
+
+                    a.download =
+                        "YAS-Timetable.png";
+
+                    a.href =
+                        URL.createObjectURL(
+                            blob
+                        );
+
+                    a.click();
+
+                    URL.revokeObjectURL(
+                        a.href
+                    );
+
+                    document.body.removeChild(
+                        wrapper
+                    );
+
+                    URL.revokeObjectURL(
+                        url
+                    );
+
+                    showToast(
+                        "PNG exporté ✓"
+                    );
+
+                },
+                "image/png"
+            );
+
+        };
+
+
+        image.onerror = ()=>{
+
+            document.body.removeChild(
+                wrapper
+            );
+
+            URL.revokeObjectURL(
+                url
+            );
+
+            showToast(
+                "Impossible de créer l'image."
+            );
+
+        };
+
+
+        image.src =
+            url;
 
     }
 
-    catch(error) {
+    catch(error){
 
         console.error(error);
 
         showToast(
-            "Erreur pendant l'exportation."
+            "Erreur pendant l'export PNG."
         );
 
     }
-
-
-    wrapper.style.overflow =
-        oldOverflow;
-
-    table.style.width =
-        oldWidth;
 
 }
 
 
 /* =========================================================
-   PDF EXPORT
+   PDF
+   OFFLINE-SAFE METHOD
 ========================================================= */
 
-async function exportPDF() {
+function printPDF(){
 
-    const table =
-        document.getElementById("timetable");
+    /*
+       Browser print dialog:
+       choose "Save as PDF".
 
+       This works completely offline
+       and keeps the current language,
+       direction and orientation.
+    */
 
-    const wrapper =
-        table.parentElement;
-
-
-    const oldOverflow =
-        wrapper.style.overflow;
-
-
-    const oldWidth =
-        table.style.width;
-
-
-    wrapper.style.overflow =
-        "visible";
-
-
-    table.style.width =
-        "max-content";
-
-
-    try {
-
-        const canvas =
-            await html2canvas(table, {
-
-                scale: 3,
-
-                useCORS: true,
-
-                backgroundColor: "#ffffff",
-
-                logging: false,
-
-                windowWidth:
-                    Math.max(
-                        document.documentElement.scrollWidth,
-                        table.scrollWidth
-                    )
-
-            });
-
-
-        const imgData =
-            canvas.toDataURL(
-                "image/png",
-                1.0
-            );
-
-
-        const {
-            jsPDF
-        } = window.jspdf;
-
-
-        const pdf =
-            new jsPDF({
-
-                orientation: "landscape",
-
-                unit: "mm",
-
-                format: "a4",
-
-                compress: true
-
-            });
-
-
-        const pageWidth =
-            pdf.internal.pageSize.getWidth();
-
-
-        const pageHeight =
-            pdf.internal.pageSize.getHeight();
-
-
-        const margin = 5;
-
-
-        const availableWidth =
-            pageWidth - margin * 2;
-
-
-        const availableHeight =
-            pageHeight - margin * 2;
-
-
-        const imageRatio =
-            canvas.width /
-            canvas.height;
-
-
-        let width =
-            availableWidth;
-
-
-        let height =
-            width / imageRatio;
-
-
-        /*
-           If height doesn't fit, scale it down.
-        */
-
-        if (height > availableHeight) {
-
-            height =
-                availableHeight;
-
-            width =
-                height * imageRatio;
-
-        }
-
-
-        const x =
-            (pageWidth - width) / 2;
-
-
-        const y =
-            (pageHeight - height) / 2;
-
-
-        pdf.addImage(
-
-            imgData,
-
-            "PNG",
-
-            x,
-
-            y,
-
-            width,
-
-            height,
-
-            undefined,
-
-            "FAST"
-
-        );
-
-
-        pdf.save(
-            "YAS-Timetable.pdf"
-        );
-
-
-        showToast("PDF créé ✓");
-
-    }
-
-    catch(error) {
-
-        console.error(error);
-
-        showToast(
-            "Erreur pendant la création du PDF."
-        );
-
-    }
-
-
-    wrapper.style.overflow =
-        oldOverflow;
-
-    table.style.width =
-        oldWidth;
+    window.print();
 
 }
 
 
 /* =========================================================
-   HELPERS
+   CONTRAST
 ========================================================= */
 
-function showToast(message) {
-
-    const toast =
-        document.getElementById("toast");
-
-
-    toast.textContent =
-        message;
-
-
-    toast.classList.add("show");
-
-
-    setTimeout(() => {
-
-        toast.classList.remove("show");
-
-    }, 2500);
-
-}
-
-
-function escapeHTML(text) {
-
-    return String(text)
-
-        .replaceAll("&", "&amp;")
-
-        .replaceAll("<", "&lt;")
-
-        .replaceAll(">", "&gt;")
-
-        .replaceAll('"', "&quot;")
-
-        .replaceAll("'", "&#039;");
-
-}
-
-
-function getContrastColor(hex) {
+function contrast(hex){
 
     hex =
         hex.replace("#","");
@@ -2851,13 +3572,11 @@ function getContrastColor(hex) {
             16
         );
 
-
     const g =
         parseInt(
             hex.substring(2,4),
             16
         );
-
 
     const b =
         parseInt(
@@ -2866,13 +3585,15 @@ function getContrastColor(hex) {
         );
 
 
-    const luminance =
-        (0.299*r +
-         0.587*g +
-         0.114*b);
+    const brightness =
+        (
+            0.299*r +
+            0.587*g +
+            0.114*b
+        );
 
 
-    return luminance > 175
+    return brightness > 175
         ? "#514957"
         : "#ffffff";
 
@@ -2880,15 +3601,70 @@ function getContrastColor(hex) {
 
 
 /* =========================================================
-   CLOSE MODAL WHEN CLICKING OUTSIDE
+   ESCAPE HTML
 ========================================================= */
 
-document.getElementById("lessonModal")
-.addEventListener(
-    "click",
-    function(e) {
+function escapeHTML(text){
 
-        if (e.target === this) {
+    return String(text)
+
+        .replaceAll("&","&amp;")
+
+        .replaceAll("<","&lt;")
+
+        .replaceAll(">","&gt;")
+
+        .replaceAll('"',"&quot;")
+
+        .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        ()=>{
+            toast.classList.remove(
+                "show"
+            );
+        },
+        2300
+    );
+
+}
+
+
+/* =========================================================
+   MODAL OUTSIDE CLICK
+========================================================= */
+
+document.getElementById(
+    "lessonModal"
+).addEventListener(
+    "click",
+    function(event){
+
+        if(event.target === this){
 
             closeLessonModal();
 
@@ -2899,45 +3675,21 @@ document.getElementById("lessonModal")
 
 
 /* =========================================================
-   SUBJECT AUTOCOMPLETE
+   KEYBOARD ESC
 ========================================================= */
 
-function updateSubjectOptions() {
+document.addEventListener(
+    "keydown",
+    event=>{
 
-    const datalist =
-        document.getElementById(
-            "subjectOptions"
-        );
+        if(event.key === "Escape"){
 
+            closeLessonModal();
 
-    datalist.innerHTML = "";
+        }
 
-
-    Object.keys(state.colors)
-    .forEach(subject => {
-
-        const option =
-            document.createElement("option");
-
-        option.value = subject;
-
-        datalist.appendChild(option);
-
-    });
-
-}
-
-
-updateSubjectOptions();
-
-
-/*
-   Re-render options when colors/subjects change.
-*/
-
-const originalRenderSubjectColors =
-    renderSubjectColors;
-
+    }
+);
 
 </script>
 
