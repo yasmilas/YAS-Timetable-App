@@ -27,11 +27,6 @@
     --shadow: 0 8px 25px rgba(80,60,90,.08);
 }
 
-/*
-   Cabin first.
-   If it isn't installed, Poppins is tried.
-   Arabic-compatible fallbacks follow.
-*/
 * {
     box-sizing: border-box;
 }
@@ -201,24 +196,31 @@ button {
 }
 
 /* =========================================================
-   SUBJECT COLORS
+   SUBJECT COLORS / MANAGED SUBJECTS
    ========================================================= */
 
 .subject-list {
     display: grid;
     grid-template-columns:
-        repeat(auto-fill,minmax(190px,1fr));
-    gap: 9px;
+        repeat(auto-fill,minmax(220px,1fr));
+    gap: 10px;
 }
 
 .subject-item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 9px;
-    padding: 9px;
+    padding: 9px 12px;
     background: #faf8fb;
     border: 1px solid var(--border);
     border-radius: 11px;
+}
+
+.subject-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .color-circle {
@@ -357,13 +359,17 @@ button {
     color: #945b5b;
     padding: 7px 10px;
     border-radius: 10px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .deleted-item button {
     background: transparent;
     color: inherit;
     font-weight: bold;
-    margin-left: 5px;
+    cursor: pointer;
 }
 
 /* =========================================================
@@ -487,20 +493,16 @@ button {
    ========================================================= */
 
 @media(max-width:700px) {
-
     .header-inner {
         flex-direction: column;
         align-items: stretch;
     }
-
     .header-actions {
         justify-content: center;
     }
-
     .modal-grid {
         grid-template-columns: 1fr;
     }
-
     .full {
         grid-column: auto;
     }
@@ -588,13 +590,9 @@ button {
                 onchange="changeLanguage(this.value)">
 
             <option value="fr">Français</option>
-
             <option value="ar">العربية</option>
-
             <option value="darija">الدارجة</option>
-
             <option value="en">English</option>
-
             <option value="es">Español</option>
 
         </select>
@@ -655,9 +653,7 @@ button {
                 onchange="changeNumberOfDays()">
 
             <option value="5">5</option>
-
             <option value="6">6</option>
-
             <option value="7">7</option>
 
         </select>
@@ -722,7 +718,49 @@ button {
 
 
 <!-- =======================================================
-     DELETE TIME
+     ADD & MANAGE SUBJECTS
+======================================================= -->
+
+<section class="panel no-print">
+
+<div class="panel-title"
+     data-i18n="addSubjectTitle">
+    Ajouter & Gérer des Matières
+</div>
+
+<div class="settings-grid" style="margin-bottom: 15px;">
+
+    <div class="field">
+        <label data-i18n="newSubjectName">Nom de la matière</label>
+        <input type="text" id="newSubjectName" placeholder="Ex: Mathématiques">
+    </div>
+
+    <div class="field">
+        <label data-i18n="color">Couleur</label>
+        <input type="color" id="newSubjectColor" value="#c9dcf2" style="height: 40px; width:100%; border:0; padding:0; background:none; cursor:pointer;">
+    </div>
+
+    <div class="field">
+        <label>&nbsp;</label>
+        <button class="btn primary" onclick="addNewSubject()">
+            ＋ <span data-i18n="addSubjectBtn">Ajouter la matière</span>
+        </button>
+    </div>
+
+</div>
+
+<div style="font-size:13px;color:var(--muted);margin-bottom:8px;" data-i18n="colors">
+    Couleurs des matières
+</div>
+
+<div id="subjectList" class="subject-list">
+</div>
+
+</section>
+
+
+<!-- =======================================================
+     DELETE TIME (ADVANCED TARGETING)
 ======================================================= -->
 
 <section class="panel no-print">
@@ -734,6 +772,22 @@ button {
 
 
 <div class="settings-grid">
+
+    <!-- TARGET DAY SELECTION -->
+    <div class="field">
+        <label data-i18n="targetDays">
+            Jours concernés
+        </label>
+        <select id="deleteTargetType" onchange="toggleDeleteDaySelect()">
+            <option value="all" data-i18n="allDays">Tous les jours</option>
+            <option value="single" data-i18n="singleDay">Un jour précis</option>
+        </select>
+    </div>
+
+    <div class="field" id="deleteSingleDayContainer" style="display: none;">
+        <label data-i18n="day">Jour</label>
+        <select id="deleteTargetDay"></select>
+    </div>
 
 
     <div class="field">
@@ -795,24 +849,6 @@ button {
      style="margin-top:8px">
 </div>
 
-</div>
-
-</section>
-
-
-<!-- =======================================================
-     SUBJECT COLORS
-======================================================= -->
-
-<section class="panel no-print">
-
-<div class="panel-title"
-     data-i18n="colors">
-    Couleurs des matières
-</div>
-
-<div id="subjectList"
-     class="subject-list">
 </div>
 
 </section>
@@ -888,7 +924,8 @@ button {
 
         <input id="lessonSubject"
                list="subjectOptions"
-               placeholder="Math">
+               placeholder="Math"
+               oninput="onSubjectInputChange(this.value)">
 
         <datalist id="subjectOptions"></datalist>
 
@@ -1048,7 +1085,6 @@ button {
 const T = {
 
 fr: {
-
 settings:"Paramètres",
 language:"Langue",
 tableTitle:"Titre du tableau",
@@ -1060,11 +1096,17 @@ dayStart:"Début de la journée",
 dayEnd:"Fin de la journée",
 slotDuration:"Durée des créneaux",
 deletePeriod:"Supprimer une période vide",
+targetDays:"Jours concernés",
+allDays:"Tous les jours",
+singleDay:"Un jour précis",
 from:"De",
 to:"À",
 delete:"Supprimer",
 deletedPeriods:"Périodes supprimées",
 colors:"Couleurs des matières",
+addSubjectTitle:"Ajouter & Gérer des Matières",
+newSubjectName:"Nom de la matière",
+addSubjectBtn:"Ajouter la matière",
 addLesson:"Ajouter",
 save:"Sauvegarder",
 print:"Imprimer",
@@ -1076,12 +1118,15 @@ teacher:"Professeur",
 location:"Salle / Lieu",
 color:"Couleur",
 cancel:"Annuler",
-confirm:"Enregistrer"
-
+confirm:"Enregistrer",
+invalidPeriod:"Période invalide.",
+lessonConflict:"Une séance existe dans cette période pour ce jour.",
+periodDeleted:"Période supprimée ✓",
+subjectAdded:"Matière ajoutée ✓",
+subjectExists:"Cette matière existe déjà."
 },
 
 en: {
-
 settings:"Settings",
 language:"Language",
 tableTitle:"Table title",
@@ -1093,11 +1138,17 @@ dayStart:"Day start",
 dayEnd:"Day end",
 slotDuration:"Time slot duration",
 deletePeriod:"Delete empty period",
+targetDays:"Target days",
+allDays:"All days",
+singleDay:"Specific day",
 from:"From",
 to:"To",
 delete:"Delete",
 deletedPeriods:"Deleted periods",
 colors:"Subject colors",
+addSubjectTitle:"Add & Manage Subjects",
+newSubjectName:"Subject Name",
+addSubjectBtn:"Add Subject",
 addLesson:"Add",
 save:"Save",
 print:"Print",
@@ -1109,12 +1160,15 @@ teacher:"Teacher",
 location:"Room / Location",
 color:"Color",
 cancel:"Cancel",
-confirm:"Save"
-
+confirm:"Save",
+invalidPeriod:"Invalid time period.",
+lessonConflict:"A lesson exists during this period on this day.",
+periodDeleted:"Period deleted ✓",
+subjectAdded:"Subject added ✓",
+subjectExists:"This subject already exists."
 },
 
 es: {
-
 settings:"Configuración",
 language:"Idioma",
 tableTitle:"Título del horario",
@@ -1126,11 +1180,17 @@ dayStart:"Inicio del día",
 dayEnd:"Fin del día",
 slotDuration:"Duración de los bloques",
 deletePeriod:"Eliminar período vacío",
+targetDays:"Días afectados",
+allDays:"Todos los días",
+singleDay:"Un día específico",
 from:"Desde",
 to:"Hasta",
 delete:"Eliminar",
 deletedPeriods:"Períodos eliminados",
 colors:"Colores de asignaturas",
+addSubjectTitle:"Añadir y Gestionar Asignaturas",
+newSubjectName:"Nombre de la asignatura",
+addSubjectBtn:"Añadir asignatura",
 addLesson:"Añadir",
 save:"Guardar",
 print:"Imprimir",
@@ -1142,12 +1202,15 @@ teacher:"Profesor",
 location:"Aula / Lugar",
 color:"Color",
 cancel:"Cancelar",
-confirm:"Guardar"
-
+confirm:"Guardar",
+invalidPeriod:"Período no válido.",
+lessonConflict:"Existe una clase en este período para este día.",
+periodDeleted:"Período eliminado ✓",
+subjectAdded:"Asignatura añadida ✓",
+subjectExists:"Esta asignatura ya existe."
 },
 
 ar: {
-
 settings:"الإعدادات",
 language:"اللغة",
 tableTitle:"عنوان الجدول",
@@ -1159,11 +1222,17 @@ dayStart:"بداية اليوم",
 dayEnd:"نهاية اليوم",
 slotDuration:"مدة الخانات",
 deletePeriod:"حذف فترة فارغة",
+targetDays:"الأيام المعنية",
+allDays:"جميع الأيام",
+singleDay:"يوم محدد",
 from:"من",
 to:"إلى",
 delete:"حذف",
 deletedPeriods:"الفترات المحذوفة",
 colors:"ألوان المواد",
+addSubjectTitle:"إضافة وإدارة المواد",
+newSubjectName:"اسم المادة",
+addSubjectBtn:"إضافة المادة",
 addLesson:"إضافة حصة",
 save:"حفظ",
 print:"طباعة",
@@ -1175,12 +1244,15 @@ teacher:"الأستاذ",
 location:"القاعـة / المكان",
 color:"اللون",
 cancel:"إلغاء",
-confirm:"حفظ"
-
+confirm:"حفظ",
+invalidPeriod:"فترة زمنية غير صالحة.",
+lessonConflict:"توجد حصة مسجلة في هذه الفترة في هذا اليوم.",
+periodDeleted:"تم حذف الفترة بنجاح ✓",
+subjectAdded:"تمت إضافة المادة بنجاح ✓",
+subjectExists:"هذه المادة موجودة بالفعل."
 },
 
 darija: {
-
 settings:"الإعدادات",
 language:"اللغة",
 tableTitle:"عنوان الجدول",
@@ -1192,11 +1264,17 @@ dayStart:"بداية النهار",
 dayEnd:"نهاية النهار",
 slotDuration:"مدة الخانات",
 deletePeriod:"مسح فترة خاوية",
+targetDays:"النهار المعني",
+allDays:"كاع الأيام",
+singleDay:"نهار محدد",
 from:"من",
 to:"حتى",
 delete:"مسح",
 deletedPeriods:"الفترات الممسوحة",
 colors:"ألوان المواد",
+addSubjectTitle:"زيد وسير المواد",
+newSubjectName:"سمية المادة",
+addSubjectBtn:"زيد المادة",
 addLesson:"زيد حصة",
 save:"حفظ",
 print:"طبع",
@@ -1208,8 +1286,12 @@ teacher:"الأستاذ",
 location:"القاعـة / البلاصة",
 color:"اللون",
 cancel:"إلغاء",
-confirm:"حفظ"
-
+confirm:"حفظ",
+invalidPeriod:"وقيت ماشي هو هذاك.",
+lessonConflict:"كاينا حصة كاينا فهاد الوقيت بهاد النهار.",
+periodDeleted:"تمسحات الفترة بنجاح ✓",
+subjectAdded:"تزادت المادة بنجاح ✓",
+subjectExists:"هاد المادة راه كاينا قبل."
 }
 
 };
@@ -1322,6 +1404,8 @@ window.addEventListener("DOMContentLoaded",()=>{
 
     applyLanguage();
 
+    populateDeleteDaySelect();
+
     renderSubjectColors();
 
     renderTimetable();
@@ -1382,11 +1466,6 @@ function syncControls(){
 
 function changeLanguage(lang){
 
-    /*
-       Preserve the number of days,
-       but translate the day names.
-    */
-
     state.language = lang;
 
     state.days =
@@ -1395,9 +1474,13 @@ function changeLanguage(lang){
 
     applyLanguage();
 
+    populateDeleteDaySelect();
+
     renderTimetable();
 
     renderSubjectColors();
+
+    updateDeletedList();
 
     saveData(false);
 
@@ -1442,13 +1525,8 @@ function applyLanguage(){
     });
 
 
-    /*
-       IMPORTANT:
-       select options are translated too.
-    */
-
     document.querySelectorAll(
-        "#orientation option"
+        "#orientation option, #deleteTargetType option"
     ).forEach(option=>{
 
         const key =
@@ -1582,76 +1660,69 @@ function getTimeSlots(){
 
 
 /* =========================================================
-   DELETE PERIOD
+   DELETE PERIOD (WITH DAY TARGETING)
 ========================================================= */
+
+function toggleDeleteDaySelect(){
+    const targetType = document.getElementById("deleteTargetType").value;
+    const container = document.getElementById("deleteSingleDayContainer");
+    container.style.display = targetType === "single" ? "flex" : "none";
+}
+
+function populateDeleteDaySelect(){
+    const select = document.getElementById("deleteTargetDay");
+    if(!select) return;
+    select.innerHTML = "";
+    state.days.forEach(day => {
+        const opt = document.createElement("option");
+        opt.value = day;
+        opt.textContent = day;
+        select.appendChild(opt);
+    });
+}
 
 function deleteTimePeriod(){
 
-    const start =
-        document.getElementById(
-            "deleteStart"
-        ).value;
-
-    const end =
-        document.getElementById(
-            "deleteEnd"
-        ).value;
+    const start = document.getElementById("deleteStart").value;
+    const end = document.getElementById("deleteEnd").value;
+    const targetType = document.getElementById("deleteTargetType").value;
+    const targetDay = targetType === "single" ? document.getElementById("deleteTargetDay").value : "ALL";
 
 
     if(
         !start ||
         !end ||
-        timeToMinutes(start)
-        >=
-        timeToMinutes(end)
+        timeToMinutes(start) >= timeToMinutes(end)
     ){
-
-        showToast(
-            "Invalid time period."
-        );
-
+        showToast(T[state.language].invalidPeriod || "Invalid time period.");
         return;
-
     }
 
 
     /*
-       We don't allow deleting a period
-       containing a lesson.
+       Check conflicts with lessons on target day(s)
     */
+    const conflict = state.lessons.some(lesson => {
+        const isDayMatch = targetDay === "ALL" || lesson.day === targetDay;
+        if (!isDayMatch) return false;
 
-    const conflict =
-        state.lessons.some(lesson=>{
-
-            return (
-                timeToMinutes(lesson.start)
-                <
-                timeToMinutes(end)
-
-                &&
-
-                timeToMinutes(lesson.end)
-                >
-                timeToMinutes(start)
-            );
-
-        });
+        return (
+            timeToMinutes(lesson.start) < timeToMinutes(end) &&
+            timeToMinutes(lesson.end) > timeToMinutes(start)
+        );
+    });
 
 
     if(conflict){
-
-        showToast(
-            "Une séance existe dans cette période."
-        );
-
+        showToast(T[state.language].lessonConflict || "Une séance existe dans cette période.");
         return;
-
     }
 
 
     state.deletedPeriods.push({
         start,
-        end
+        end,
+        day: targetDay
     });
 
 
@@ -1661,26 +1732,19 @@ function deleteTimePeriod(){
 
     saveData(false);
 
+    showToast(T[state.language].periodDeleted || "Période supprimée ✓");
+
 }
 
 
-function isDeleted(start,end){
+function isDeleted(start, end, dayName){
 
-    const s =
-        timeToMinutes(start);
+    const s = timeToMinutes(start);
+    const e = timeToMinutes(end);
 
-    const e =
-        timeToMinutes(end);
-
-
-    return state.deletedPeriods.some(period=>{
-
-        return (
-            s >= timeToMinutes(period.start)
-            &&
-            e <= timeToMinutes(period.end)
-        );
-
+    return state.deletedPeriods.some(period => {
+        const matchesDay = period.day === "ALL" || period.day === dayName;
+        return matchesDay && (s >= timeToMinutes(period.start) && e <= timeToMinutes(period.end));
     });
 
 }
@@ -1704,82 +1768,100 @@ function restorePeriod(index){
 
 function updateDeletedList(){
 
-    const container =
-        document.getElementById(
-            "deletedList"
-        );
-
+    const container = document.getElementById("deletedList");
     container.innerHTML = "";
 
+    const allDaysLabel = T[state.language].allDays || "Tous les jours";
 
-    state.deletedPeriods.forEach(
-        (period,index)=>{
+    state.deletedPeriods.forEach((period, index) => {
 
-            const div =
-                document.createElement("div");
+        const div = document.createElement("div");
+        div.className = "deleted-item";
 
-            div.className =
-                "deleted-item";
+        const dayTag = period.day === "ALL" ? `[${allDaysLabel}]` : `[${period.day}]`;
 
-            div.innerHTML = `
-                ${period.start} → ${period.end}
-                <button
-                    onclick="restorePeriod(${index})">
-                    ×
-                </button>
-            `;
+        div.innerHTML = `
+            <span>${dayTag} ${period.start} → ${period.end}</span>
+            <button onclick="restorePeriod(${index})">×</button>
+        `;
 
-            container.appendChild(div);
+        container.appendChild(div);
 
-        }
-    );
+    });
 
 }
 
 
 /* =========================================================
-   RENDER
+   ADD & MANAGE SUBJECTS
+========================================================= */
+
+function addNewSubject(){
+    const nameInput = document.getElementById("newSubjectName");
+    const colorInput = document.getElementById("newSubjectColor");
+
+    const name = nameInput.value.trim();
+    const color = colorInput.value;
+
+    if(!name) return;
+
+    if(state.colors[name]){
+        showToast(T[state.language].subjectExists || "Subject already exists.");
+        return;
+    }
+
+    state.colors[name] = color;
+    nameInput.value = "";
+
+    renderSubjectColors();
+    updateSubjectOptions();
+    saveData(false);
+    showToast(T[state.language].subjectAdded || "Subject added ✓");
+}
+
+function deleteSubject(subject){
+    delete state.colors[subject];
+    renderSubjectColors();
+    updateSubjectOptions();
+    renderTimetable();
+    saveData(false);
+}
+
+function onSubjectInputChange(subjectName){
+    if(state.colors[subjectName]){
+        document.getElementById("lessonColor").value = state.colors[subjectName];
+        updateColorText();
+    }
+}
+
+
+/* =========================================================
+   RENDER TIMETABLE
 ========================================================= */
 
 function renderTimetable(){
 
     state.dayStart =
-        document.getElementById(
-            "dayStart"
-        ).value;
+        document.getElementById("dayStart").value;
 
     state.dayEnd =
-        document.getElementById(
-            "dayEnd"
-        ).value;
+        document.getElementById("dayEnd").value;
 
     state.slotDuration =
-        Number(
-            document.getElementById(
-                "slotDuration"
-            ).value
-        );
+        Number(document.getElementById("slotDuration").value);
 
     state.orientation =
-        document.getElementById(
-            "orientation"
-        ).value;
+        document.getElementById("orientation").value;
 
 
-    document.getElementById(
-        "printTitle"
-    ).textContent =
+    document.getElementById("printTitle").textContent =
         state.title || " ";
 
 
     if(state.orientation === "horizontal"){
-
         renderHorizontal();
-
     }else{
-
         renderVertical();
-
     }
 
 }
@@ -1787,257 +1869,114 @@ function renderTimetable(){
 
 /* =========================================================
    VERTICAL TABLE
-   Days = columns
-   Time = rows
 ========================================================= */
 
 function renderVertical(){
 
-    const table =
-        document.getElementById(
-            "timetable"
-        );
-
+    const table = document.getElementById("timetable");
     table.innerHTML = "";
 
+    const slots = getTimeSlots();
 
-    const slots =
-        getTimeSlots();
+    const thead = document.createElement("thead");
+    const header = document.createElement("tr");
 
-
-    const thead =
-        document.createElement("thead");
-
-    const header =
-        document.createElement("tr");
-
-
-    const timeHead =
-        document.createElement("th");
-
+    const timeHead = document.createElement("th");
     timeHead.textContent = "⏰";
-
     header.appendChild(timeHead);
 
-
     state.days.forEach(day=>{
-
-        const th =
-            document.createElement("th");
-
-        th.textContent =
-            day;
-
+        const th = document.createElement("th");
+        th.textContent = day;
         header.appendChild(th);
-
     });
 
-
     thead.appendChild(header);
-
     table.appendChild(thead);
 
-
-    const tbody =
-        document.createElement("tbody");
-
-
-    /*
-       rowspan tracking
-    */
-
-    const skip =
-        {};
-
+    const tbody = document.createElement("tbody");
+    const skip = {};
 
     slots.forEach((slot,index)=>{
 
-        const row =
-            document.createElement("tr");
+        const row = document.createElement("tr");
 
-
-        const time =
-            document.createElement("td");
-
-        time.className =
-            "time-cell";
-
+        const time = document.createElement("td");
+        time.className = "time-cell";
         time.innerHTML =
-            `<strong>
-                ${slot.start}
-             </strong>
-             <br>
-             ↓
-             <br>
-             ${slot.end}`;
+            `<strong>${slot.start}</strong><br>↓<br>${slot.end}`;
 
         row.appendChild(time);
 
-
-        state.days.forEach(
-            (day,dayIndex)=>{
-
+        state.days.forEach((day,dayIndex)=>{
 
             if(skip[dayIndex]){
-
                 skip[dayIndex]--;
-
                 return;
-
             }
 
+            const cell = document.createElement("td");
+            cell.className = "day-cell";
 
-            const cell =
-                document.createElement("td");
-
-            cell.className =
-                "day-cell";
-
-
-            /*
-               A lesson can start only at
-               a generated time slot.
-            */
-
-            const lesson =
-                state.lessons.find(
-                    l =>
-                    l.day === day &&
-                    l.start === slot.start
-                );
-
+            const lesson = state.lessons.find(
+                l => l.day === day && l.start === slot.start
+            );
 
             if(lesson){
 
                 const duration =
-                    timeToMinutes(lesson.end)
-                    -
-                    timeToMinutes(lesson.start);
+                    timeToMinutes(lesson.end) - timeToMinutes(lesson.start);
 
-
-                const slotMinutes =
-                    Number(state.slotDuration);
-
-
-                let rows =
-                    Math.ceil(
-                        duration /
-                        slotMinutes
-                    );
-
-
-                /*
-                   Never span a deleted period.
-                */
+                const slotMinutes = Number(state.slotDuration);
+                let rows = Math.ceil(duration / slotMinutes);
 
                 let possibleRows = 0;
 
+                for(let i=index; i<slots.length; i++){
 
-                for(
-                    let i=index;
-                    i<slots.length;
-                    i++
-                ){
-
-                    if(
-                        isDeleted(
-                            slots[i].start,
-                            slots[i].end
-                        )
-                    ){
-
+                    if(isDeleted(slots[i].start, slots[i].end, day)){
                         break;
-
                     }
 
-
-                    if(
-                        timeToMinutes(
-                            slots[i].start
-                        )
-                        >=
-                        timeToMinutes(
-                            lesson.end
-                        )
-                    ){
-
+                    if(timeToMinutes(slots[i].start) >= timeToMinutes(lesson.end)){
                         break;
-
                     }
-
 
                     possibleRows++;
-
                 }
 
+                rows = Math.min(rows, possibleRows);
+                rows = Math.max(1, rows);
 
-                rows =
-                    Math.min(
-                        rows,
-                        possibleRows
-                    );
+                cell.rowSpan = rows;
+                skip[dayIndex] = rows-1;
 
-
-                rows =
-                    Math.max(1,rows);
-
-
-                cell.rowSpan =
-                    rows;
-
-
-                skip[dayIndex] =
-                    rows-1;
-
-
-                cell.appendChild(
-                    createLesson(lesson)
-                );
-
+                cell.appendChild(createLesson(lesson));
 
             }else{
 
-
-                if(
-                    isDeleted(
-                        slot.start,
-                        slot.end
-                    )
-                ){
-
-                    cell.classList.add(
-                        "deleted-time"
-                    );
-
+                if(isDeleted(slot.start, slot.end, day)){
+                    cell.classList.add("deleted-time");
                 }else{
-
-                    cell.classList.add(
-                        "empty-cell"
-                    );
-
-                    cell.ondblclick =
-                        ()=>{
-                            openLessonModal({
-                                day,
-                                start:slot.start,
-                                end:slot.end
-                            });
-                        };
-
+                    cell.classList.add("empty-cell");
+                    cell.ondblclick = ()=>{
+                        openLessonModal({
+                            day,
+                            start:slot.start,
+                            end:slot.end
+                        });
+                    };
                 }
 
             }
-
 
             row.appendChild(cell);
 
         });
 
-
         tbody.appendChild(row);
 
     });
-
 
     table.appendChild(tbody);
 
@@ -2046,249 +1985,112 @@ function renderVertical(){
 
 /* =========================================================
    HORIZONTAL TABLE
-   Days = rows
-   Time = columns
 ========================================================= */
 
 function renderHorizontal(){
 
-    const table =
-        document.getElementById(
-            "timetable"
-        );
-
+    const table = document.getElementById("timetable");
     table.innerHTML = "";
 
+    const slots = getTimeSlots();
 
-    const slots =
-        getTimeSlots();
+    const thead = document.createElement("thead");
+    const header = document.createElement("tr");
 
-
-    const thead =
-        document.createElement("thead");
-
-    const header =
-        document.createElement("tr");
-
-
-    const dayHead =
-        document.createElement("th");
-
-    dayHead.textContent =
-        "📅";
-
-
+    const dayHead = document.createElement("th");
+    dayHead.textContent = "📅";
     header.appendChild(dayHead);
 
-
     slots.forEach(slot=>{
-
-        const th =
-            document.createElement("th");
-
-        th.innerHTML =
-            `${slot.start}<br>↓<br>${slot.end}`;
-
+        const th = document.createElement("th");
+        th.innerHTML = `${slot.start}<br>↓<br>${slot.end}`;
         header.appendChild(th);
-
     });
 
-
     thead.appendChild(header);
-
     table.appendChild(thead);
 
-
-    const tbody =
-        document.createElement("tbody");
-
-
-    /*
-       Each lesson spanning several time slots
-       becomes ONE horizontal merged cell.
-    */
+    const tbody = document.createElement("tbody");
 
     state.days.forEach(day=>{
 
-        const row =
-            document.createElement("tr");
+        const row = document.createElement("tr");
 
-
-        const dayCell =
-            document.createElement("td");
-
-        dayCell.className =
-            "time-cell";
-
-        dayCell.innerHTML =
-            `<strong>${day}</strong>`;
-
+        const dayCell = document.createElement("td");
+        dayCell.className = "time-cell";
+        dayCell.innerHTML = `<strong>${day}</strong>`;
 
         row.appendChild(dayCell);
 
-
         let skip = 0;
-
 
         slots.forEach((slot,index)=>{
 
             if(skip > 0){
-
                 skip--;
-
                 return;
-
             }
 
+            const cell = document.createElement("td");
+            cell.className = "day-cell";
 
-            const cell =
-                document.createElement("td");
-
-            cell.className =
-                "day-cell";
-
-
-            const lesson =
-                state.lessons.find(
-                    l =>
-                    l.day === day &&
-                    l.start === slot.start
-                );
-
+            const lesson = state.lessons.find(
+                l => l.day === day && l.start === slot.start
+            );
 
             if(lesson){
 
-                const duration =
-                    timeToMinutes(lesson.end)
-                    -
-                    timeToMinutes(lesson.start);
+                const duration = timeToMinutes(lesson.end) - timeToMinutes(lesson.start);
+                const slotMinutes = Number(state.slotDuration);
+                let columns = Math.ceil(duration / slotMinutes);
 
+                let possible = 0;
 
-                const slotMinutes =
-                    Number(
-                        state.slotDuration
-                    );
+                for(let i=index; i<slots.length; i++){
 
-
-                let columns =
-                    Math.ceil(
-                        duration /
-                        slotMinutes
-                    );
-
-
-                let possible =
-                    0;
-
-
-                for(
-                    let i=index;
-                    i<slots.length;
-                    i++
-                ){
-
-                    if(
-                        isDeleted(
-                            slots[i].start,
-                            slots[i].end
-                        )
-                    ){
-
+                    if(isDeleted(slots[i].start, slots[i].end, day)){
                         break;
-
                     }
 
-
-                    if(
-                        timeToMinutes(
-                            slots[i].start
-                        )
-                        >=
-                        timeToMinutes(
-                            lesson.end
-                        )
-                    ){
-
+                    if(timeToMinutes(slots[i].start) >= timeToMinutes(lesson.end)){
                         break;
-
                     }
-
 
                     possible++;
-
                 }
 
+                columns = Math.min(columns, possible);
+                columns = Math.max(1, columns);
 
-                columns =
-                    Math.min(
-                        columns,
-                        possible
-                    );
+                cell.colSpan = columns;
+                skip = columns-1;
 
-
-                columns =
-                    Math.max(
-                        1,
-                        columns
-                    );
-
-
-                cell.colSpan =
-                    columns;
-
-
-                skip =
-                    columns-1;
-
-
-                cell.appendChild(
-                    createLesson(lesson)
-                );
-
+                cell.appendChild(createLesson(lesson));
 
             }else{
 
-
-                if(
-                    isDeleted(
-                        slot.start,
-                        slot.end
-                    )
-                ){
-
-                    cell.classList.add(
-                        "deleted-time"
-                    );
-
+                if(isDeleted(slot.start, slot.end, day)){
+                    cell.classList.add("deleted-time");
                 }else{
-
-                    cell.classList.add(
-                        "empty-cell"
-                    );
-
-                    cell.ondblclick =
-                        ()=>{
-                            openLessonModal({
-                                day,
-                                start:slot.start,
-                                end:slot.end
-                            });
-                        };
-
+                    cell.classList.add("empty-cell");
+                    cell.ondblclick = ()=>{
+                        openLessonModal({
+                            day,
+                            start:slot.start,
+                            end:slot.end
+                        });
+                    };
                 }
 
             }
-
 
             row.appendChild(cell);
 
         });
 
-
         tbody.appendChild(row);
 
     });
-
 
     table.appendChild(tbody);
 
@@ -2301,97 +2103,38 @@ function renderHorizontal(){
 
 function createLesson(lesson){
 
-    const div =
-        document.createElement("div");
+    const div = document.createElement("div");
+    div.className = "lesson";
 
-    div.className =
-        "lesson";
-
-
-    const duration =
-        timeToMinutes(lesson.end)
-        -
-        timeToMinutes(lesson.start);
-
+    const duration = timeToMinutes(lesson.end) - timeToMinutes(lesson.start);
 
     if(duration >= 120){
-
-        div.classList.add(
-            "lesson-long"
-        );
-
+        div.classList.add("lesson-long");
     }
 
+    const color = lesson.color || getSubjectColor(lesson.subject);
 
-    const color =
-        lesson.color ||
-        getSubjectColor(
-            lesson.subject
-        );
-
-
-    div.style.background =
-        color;
-
-
-    div.style.color =
-        "#000000";
-
+    div.style.background = color;
+    div.style.color = "#000000";
 
     let info = "";
 
-
     if(lesson.teacher){
-
-        info +=
-            escapeHTML(
-                lesson.teacher
-            );
-
+        info += escapeHTML(lesson.teacher);
     }
-
 
     if(lesson.location){
-
-        if(info)
-            info += " • ";
-
-        info +=
-            escapeHTML(
-                lesson.location
-            );
-
+        if(info) info += " • ";
+        info += escapeHTML(lesson.location);
     }
 
-
     div.innerHTML = `
-
-        <div class="lesson-name">
-            ${escapeHTML(
-                lesson.subject
-            )}
-        </div>
-
-        <div class="lesson-time">
-            ${lesson.start} – ${lesson.end}
-        </div>
-
-        ${
-            info
-            ?
-            `<div class="lesson-info">
-                ${info}
-             </div>`
-            :
-            ""
-        }
-
+        <div class="lesson-name">${escapeHTML(lesson.subject)}</div>
+        <div class="lesson-time">${lesson.start} – ${lesson.end}</div>
+        ${info ? `<div class="lesson-info">${info}</div>` : ""}
     `;
 
-
-    div.onclick =
-        ()=>openLessonModal(lesson);
-
+    div.onclick = ()=>openLessonModal(lesson);
 
     return div;
 
@@ -2402,134 +2145,48 @@ function createLesson(lesson){
    MODAL
 ========================================================= */
 
-function openLessonModal(
-    preset=null
-){
+function openLessonModal(preset=null){
 
-    editingLessonId =
-        preset && preset.id
-        ?
-        preset.id
-        :
-        null;
+    editingLessonId = preset && preset.id ? preset.id : null;
 
+    document.getElementById("lessonModal").classList.add("show");
 
-    document.getElementById(
-        "lessonModal"
-    ).classList.add("show");
-
-
-    const daySelect =
-        document.getElementById(
-            "lessonDay"
-        );
-
-
+    const daySelect = document.getElementById("lessonDay");
     daySelect.innerHTML = "";
 
-
     state.days.forEach(day=>{
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            day;
-
-        option.textContent =
-            day;
-
-        daySelect.appendChild(
-            option
-        );
-
+        const option = document.createElement("option");
+        option.value = day;
+        option.textContent = day;
+        daySelect.appendChild(option);
     });
 
-
-    document.getElementById(
-        "deleteLessonBtn"
-    ).style.display =
-        editingLessonId
-        ?
-        "inline-block"
-        :
-        "none";
-
+    document.getElementById("deleteLessonBtn").style.display =
+        editingLessonId ? "inline-block" : "none";
 
     if(editingLessonId){
-
-        const lesson =
-            state.lessons.find(
-                l =>
-                l.id === editingLessonId
-            );
-
-
+        const lesson = state.lessons.find(l => l.id === editingLessonId);
         fillModal(lesson);
-
     }else{
+        document.getElementById("modalTitle").textContent =
+            T[state.language].addLesson || "Ajouter une séance";
 
-        document.getElementById(
-            "modalTitle"
-        ).textContent =
-            "Ajouter une séance";
+        document.getElementById("lessonDay").value =
+            preset?.day || state.days[0];
 
+        document.getElementById("lessonSubject").value = "";
 
-        document.getElementById(
-            "lessonDay"
-        ).value =
-            preset?.day ||
-            state.days[0];
+        document.getElementById("lessonStart").value =
+            preset?.start || state.dayStart;
 
-
-        document.getElementById(
-            "lessonSubject"
-        ).value =
-            "";
-
-
-        document.getElementById(
-            "lessonStart"
-        ).value =
-            preset?.start ||
-            state.dayStart;
-
-
-        document.getElementById(
-            "lessonEnd"
-        ).value =
+        document.getElementById("lessonEnd").value =
             preset?.end ||
-            minutesToTime(
-                timeToMinutes(
-                    preset?.start ||
-                    state.dayStart
-                )
-                +
-                Number(
-                    state.slotDuration
-                )
-            );
+            minutesToTime(timeToMinutes(preset?.start || state.dayStart) + Number(state.slotDuration));
 
-
-        document.getElementById(
-            "lessonTeacher"
-        ).value =
-            "";
-
-
-        document.getElementById(
-            "lessonLocation"
-        ).value =
-            "";
-
-
-        document.getElementById(
-            "lessonColor"
-        ).value =
-            "#d9c5e8";
-
+        document.getElementById("lessonTeacher").value = "";
+        document.getElementById("lessonLocation").value = "";
+        document.getElementById("lessonColor").value = "#d9c5e8";
     }
-
 
     updateColorText();
 
@@ -2538,87 +2195,32 @@ function openLessonModal(
 
 function fillModal(lesson){
 
-    document.getElementById(
-        "modalTitle"
-    ).textContent =
+    document.getElementById("modalTitle").textContent =
         "Modifier la séance";
 
-
-    document.getElementById(
-        "lessonDay"
-    ).value =
-        lesson.day;
-
-
-    document.getElementById(
-        "lessonSubject"
-    ).value =
-        lesson.subject;
-
-
-    document.getElementById(
-        "lessonStart"
-    ).value =
-        lesson.start;
-
-
-    document.getElementById(
-        "lessonEnd"
-    ).value =
-        lesson.end;
-
-
-    document.getElementById(
-        "lessonTeacher"
-    ).value =
-        lesson.teacher || "";
-
-
-    document.getElementById(
-        "lessonLocation"
-    ).value =
-        lesson.location || "";
-
-
-    document.getElementById(
-        "lessonColor"
-    ).value =
-        lesson.color ||
-        getSubjectColor(
-            lesson.subject
-        );
+    document.getElementById("lessonDay").value = lesson.day;
+    document.getElementById("lessonSubject").value = lesson.subject;
+    document.getElementById("lessonStart").value = lesson.start;
+    document.getElementById("lessonEnd").value = lesson.end;
+    document.getElementById("lessonTeacher").value = lesson.teacher || "";
+    document.getElementById("lessonLocation").value = lesson.location || "";
+    document.getElementById("lessonColor").value =
+        lesson.color || getSubjectColor(lesson.subject);
 
 }
 
 
 function closeLessonModal(){
-
-    document.getElementById(
-        "lessonModal"
-    ).classList.remove("show");
-
+    document.getElementById("lessonModal").classList.remove("show");
     editingLessonId = null;
-
 }
 
 
-document.getElementById(
-    "lessonColor"
-).addEventListener(
-    "input",
-    updateColorText
-);
-
+document.getElementById("lessonColor").addEventListener("input", updateColorText);
 
 function updateColorText(){
-
-    document.getElementById(
-        "colorHex"
-    ).textContent =
-        document.getElementById(
-            "lessonColor"
-        ).value;
-
+    document.getElementById("colorHex").textContent =
+        document.getElementById("lessonColor").value;
 }
 
 
@@ -2628,236 +2230,103 @@ function updateColorText(){
 
 function saveLesson(){
 
-    const day =
-        document.getElementById(
-            "lessonDay"
-        ).value;
-
-    const subject =
-        document.getElementById(
-            "lessonSubject"
-        ).value.trim();
-
-    const start =
-        document.getElementById(
-            "lessonStart"
-        ).value;
-
-    const end =
-        document.getElementById(
-            "lessonEnd"
-        ).value;
-
-    const teacher =
-        document.getElementById(
-            "lessonTeacher"
-        ).value.trim();
-
-    const location =
-        document.getElementById(
-            "lessonLocation"
-        ).value.trim();
-
-    const color =
-        document.getElementById(
-            "lessonColor"
-        ).value;
+    const day = document.getElementById("lessonDay").value;
+    const subject = document.getElementById("lessonSubject").value.trim();
+    const start = document.getElementById("lessonStart").value;
+    const end = document.getElementById("lessonEnd").value;
+    const teacher = document.getElementById("lessonTeacher").value.trim();
+    const location = document.getElementById("lessonLocation").value.trim();
+    const color = document.getElementById("lessonColor").value;
 
 
     if(!subject){
-
-        showToast(
-            "Veuillez entrer une matière."
-        );
-
+        showToast("Veuillez entrer une matière.");
         return;
-
     }
 
 
-    if(
-        !start ||
-        !end ||
-        timeToMinutes(start)
-        >=
-        timeToMinutes(end)
-    ){
-
-        showToast(
-            "Vérifiez les horaires."
-        );
-
+    if(!start || !end || timeToMinutes(start) >= timeToMinutes(end)){
+        showToast("Vérifiez les horaires.");
         return;
-
     }
 
 
     /*
-       Check deleted periods.
+       Check deleted periods for specific day
     */
-
-    const deletedConflict =
-        state.deletedPeriods.some(period=>{
-
-            return (
-                timeToMinutes(start)
-                <
-                timeToMinutes(period.end)
-
-                &&
-                timeToMinutes(end)
-                >
-                timeToMinutes(period.start)
-            );
-
-        });
+    const deletedConflict = state.deletedPeriods.some(period => {
+        const matchesDay = period.day === "ALL" || period.day === day;
+        return matchesDay && (
+            timeToMinutes(start) < timeToMinutes(period.end) &&
+            timeToMinutes(end) > timeToMinutes(period.start)
+        );
+    });
 
 
     if(deletedConflict){
-
-        showToast(
-            "Cette séance traverse une période supprimée."
-        );
-
+        showToast("Cette séance traverse une période supprimée.");
         return;
-
     }
 
 
     /*
-       Check overlap.
+       Check overlap
     */
+    const overlap = state.lessons.some(existing => {
+        if(editingLessonId && existing.id === editingLessonId) return false;
+        if(existing.day !== day) return false;
 
-    const overlap =
-        state.lessons.some(existing=>{
-
-            if(
-                editingLessonId
-                &&
-                existing.id === editingLessonId
-            ){
-
-                return false;
-
-            }
-
-
-            if(existing.day !== day){
-
-                return false;
-
-            }
-
-
-            return (
-
-                timeToMinutes(start)
-                <
-                timeToMinutes(existing.end)
-
-                &&
-
-                timeToMinutes(end)
-                >
-                timeToMinutes(existing.start)
-
-            );
-
-        });
+        return (
+            timeToMinutes(start) < timeToMinutes(existing.end) &&
+            timeToMinutes(end) > timeToMinutes(existing.start)
+        );
+    });
 
 
     if(overlap){
-
-        showToast(
-            "Cette séance chevauche une autre séance."
-        );
-
+        showToast("Cette séance chevauche une autre séance.");
         return;
-
     }
 
 
     if(editingLessonId){
-
-        const lesson =
-            state.lessons.find(
-                l =>
-                l.id === editingLessonId
-            );
-
-
+        const lesson = state.lessons.find(l => l.id === editingLessonId);
         if(lesson){
-
-            lesson.day =
-                day;
-
-            lesson.subject =
-                subject;
-
-            lesson.start =
-                start;
-
-            lesson.end =
-                end;
-
-            lesson.teacher =
-                teacher;
-
-            lesson.location =
-                location;
-
-            lesson.color =
-                color;
-
+            lesson.day = day;
+            lesson.subject = subject;
+            lesson.start = start;
+            lesson.end = end;
+            lesson.teacher = teacher;
+            lesson.location = location;
+            lesson.color = color;
         }
-
     }else{
-
         state.lessons.push({
-
-            id:
-                Date.now().toString(),
-
+            id: Date.now().toString(),
             day,
-
             subject,
-
             start,
-
             end,
-
             teacher,
-
             location,
-
             color
-
         });
-
     }
 
 
     /*
-       Remember subject color.
+       Always save / remember subject color
     */
-
-    state.colors[subject] =
-        color;
+    state.colors[subject] = color;
 
 
     renderSubjectColors();
-
     updateSubjectOptions();
-
     renderTimetable();
-
     saveData(false);
-
     closeLessonModal();
 
-    showToast(
-        "Séance enregistrée ✓"
-    );
+    showToast("Séance enregistrée ✓");
 
 }
 
@@ -2868,28 +2337,16 @@ function saveLesson(){
 
 function deleteCurrentLesson(){
 
-    if(!editingLessonId)
-        return;
+    if(!editingLessonId) return;
 
-
-    state.lessons =
-        state.lessons.filter(
-            lesson =>
-            lesson.id !== editingLessonId
-        );
-
+    state.lessons = state.lessons.filter(l => l.id !== editingLessonId);
 
     renderTimetable();
-
     renderSubjectColors();
-
     saveData(false);
-
     closeLessonModal();
 
-    showToast(
-        "Séance supprimée."
-    );
+    showToast("Séance supprimée.");
 
 }
 
@@ -2900,40 +2357,19 @@ function deleteCurrentLesson(){
 
 function changeNumberOfDays(){
 
-    const number =
-        Number(
-            document.getElementById(
-                "numberDays"
-            ).value
-        );
+    const number = Number(document.getElementById("numberDays").value);
 
+    state.numberDays = number;
 
-    state.numberDays =
-        number;
+    state.lessons = state.lessons.filter(
+        lesson => DAYS[state.language].slice(0,number).includes(lesson.day)
+    );
 
+    state.days = DAYS[state.language].slice(0,number);
 
-    /*
-       Remove days that no longer exist.
-    */
-
-    state.lessons =
-        state.lessons.filter(
-            lesson =>
-            DAYS[state.language]
-            .slice(0,number)
-            .includes(lesson.day)
-        );
-
-
-    state.days =
-        DAYS[state.language]
-        .slice(0,number);
-
-
+    populateDeleteDaySelect();
     renderTimetable();
-
     renderSubjectColors();
-
     saveData(false);
 
 }
@@ -2945,15 +2381,9 @@ function changeNumberOfDays(){
 
 function getSubjectColor(subject){
 
-    if(
-        !state.colors[subject]
-    ){
-
-        state.colors[subject] =
-            randomPastel();
-
+    if(!state.colors[subject]){
+        state.colors[subject] = randomPastel();
     }
-
 
     return state.colors[subject];
 
@@ -2963,138 +2393,69 @@ function getSubjectColor(subject){
 function randomPastel(){
 
     const colors = [
-
-        "#c9dcf2",
-        "#f3c7d9",
-        "#d9c8ee",
-        "#e9b6b6",
-        "#f4df9e",
-        "#d9c5b2",
-        "#a8c7b0",
-        "#b4c9e8",
-        "#c8dfc5",
-        "#e7c9e5",
-        "#c8e2df"
-
+        "#c9dcf2", "#f3c7d9", "#d9c8ee", "#e9b6b6",
+        "#f4df9e", "#d9c5b2", "#a8c7b0", "#b4c9e8",
+        "#c8dfc5", "#e7c9e5", "#c8e2df"
     ];
 
-
-    return colors[
-        Math.floor(
-            Math.random()*colors.length
-        )
-    ];
+    return colors[Math.floor(Math.random()*colors.length)];
 
 }
 
 
 function renderSubjectColors(){
 
-    const container =
-        document.getElementById(
-            "subjectList"
-        );
-
-
+    const container = document.getElementById("subjectList");
     container.innerHTML = "";
 
+    const subjects = Object.keys(state.colors);
 
-    const subjects =
-        Object.keys(state.colors);
+    subjects.forEach(subject => {
 
+        const item = document.createElement("div");
+        item.className = "subject-item";
 
-    state.lessons.forEach(
-        lesson=>{
+        const info = document.createElement("div");
+        info.className = "subject-info";
 
-            if(
-                !subjects.includes(
-                    lesson.subject
-                )
-            ){
-
-                subjects.push(
-                    lesson.subject
-                );
-
-            }
-
-        }
-    );
-
-
-    subjects.forEach(subject=>{
-
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "subject-item";
-
-
-        const color =
-            document.createElement("input");
-
-        color.type =
-            "color";
-
-        color.className =
-            "color-circle";
-
-        color.value =
-            getSubjectColor(
-                subject
-            );
-
+        const color = document.createElement("input");
+        color.type = "color";
+        color.className = "color-circle";
+        color.value = getSubjectColor(subject);
 
         color.oninput = ()=>{
+            state.colors[subject] = color.value;
 
-            state.colors[subject] =
-                color.value;
-
-
-            /*
-               Update all lessons
-               of this subject.
-            */
-
-            state.lessons.forEach(
-                lesson=>{
-
-                    if(
-                        lesson.subject === subject
-                    ){
-
-                        lesson.color =
-                            color.value;
-
-                    }
-
+            state.lessons.forEach(lesson => {
+                if(lesson.subject === subject){
+                    lesson.color = color.value;
                 }
-            );
-
+            });
 
             renderTimetable();
-
             saveData(false);
-
         };
 
+        const name = document.createElement("span");
+        name.textContent = subject;
 
-        const name =
-            document.createElement("span");
+        info.appendChild(color);
+        info.appendChild(name);
 
-        name.textContent =
-            subject;
+        const delBtn = document.createElement("button");
+        delBtn.innerHTML = "×";
+        delBtn.style.background = "none";
+        delBtn.style.color = "var(--danger)";
+        delBtn.style.fontSize = "16px";
+        delBtn.style.fontWeight = "bold";
+        delBtn.onclick = () => deleteSubject(subject);
 
-
-        item.appendChild(color);
-
-        item.appendChild(name);
+        item.appendChild(info);
+        item.appendChild(delBtn);
 
         container.appendChild(item);
 
     });
-
 
     updateSubjectOptions();
 
@@ -3107,159 +2468,63 @@ function renderSubjectColors(){
 
 function updateSubjectOptions(){
 
-    const list =
-        document.getElementById(
-            "subjectOptions"
-        );
-
-
-    if(!list)
-        return;
-
+    const list = document.getElementById("subjectOptions");
+    if(!list) return;
 
     list.innerHTML = "";
 
-
-    Object.keys(
-        state.colors
-    ).forEach(subject=>{
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            subject;
-
-        list.appendChild(
-            option
-        );
-
+    Object.keys(state.colors).forEach(subject => {
+        const option = document.createElement("option");
+        option.value = subject;
+        list.appendChild(option);
     });
 
 }
 
 
 /* =========================================================
-   SAVE
+   SAVE / LOAD
 ========================================================= */
 
 function saveData(show=true){
 
-    state.title =
-        document.getElementById(
-            "tableTitle"
-        ).value;
+    state.title = document.getElementById("tableTitle").value;
+    state.orientation = document.getElementById("orientation").value;
+    state.dayStart = document.getElementById("dayStart").value;
+    state.dayEnd = document.getElementById("dayEnd").value;
+    state.slotDuration = Number(document.getElementById("slotDuration").value);
 
-
-    state.orientation =
-        document.getElementById(
-            "orientation"
-        ).value;
-
-
-    state.dayStart =
-        document.getElementById(
-            "dayStart"
-        ).value;
-
-
-    state.dayEnd =
-        document.getElementById(
-            "dayEnd"
-        ).value;
-
-
-    state.slotDuration =
-        Number(
-            document.getElementById(
-                "slotDuration"
-            ).value
-        );
-
-
-    localStorage.setItem(
-        "YAS_TIMETABLE_DATA",
-        JSON.stringify(state)
-    );
-
+    localStorage.setItem("YAS_TIMETABLE_DATA", JSON.stringify(state));
 
     if(show){
-
-        showToast(
-            "Tableau sauvegardé ✓"
-        );
-
+        showToast("Tableau sauvegardé ✓");
     }
 
 }
 
-
-/* =========================================================
-   LOAD
-========================================================= */
 
 function loadData(){
 
-    const saved =
-        localStorage.getItem(
-            "YAS_TIMETABLE_DATA"
-        );
-
+    const saved = localStorage.getItem("YAS_TIMETABLE_DATA");
 
     if(!saved){
-
         createDays();
-
         return;
-
     }
-
 
     try{
-
-        const data =
-            JSON.parse(saved);
-
-
-        state =
-            Object.assign(
-                state,
-                data
-            );
-
+        const data = JSON.parse(saved);
+        state = Object.assign(state, data);
     }catch(error){
-
         console.error(error);
-
         createDays();
-
     }
 
 }
 
 
 /* =========================================================
-   NEW TABLE
-========================================================= */
-
-function newTable(){
-
-    state.lessons = [];
-
-    state.deletedPeriods = [];
-
-    saveData(false);
-
-    renderTimetable();
-
-    updateDeletedList();
-
-}
-
-
-/* =========================================================
-   EXPORT PNG - FULL TABLE
-   No external library.
+   EXPORT PNG
 ========================================================= */
 
 async function exportPNG(){
@@ -3296,6 +2561,7 @@ async function exportPNG(){
             const r = el.getBoundingClientRect();
             return {x:r.left-tableRect.left, y:r.top-tableRect.top+titleHeight, w:r.width, h:r.height};
         }
+
         function wrapped(text, x, y, maxW, lineH, maxLines=3){
             const words = String(text || "").split(/\s+/).filter(Boolean);
             const lines = [];
@@ -3373,155 +2639,40 @@ async function exportPNG(){
 
 
 function printPDF(){
-
-    /*
-       Browser print dialog:
-       choose "Save as PDF".
-
-       This works completely offline
-       and keeps the current language,
-       direction and orientation.
-    */
-
     window.print();
-
 }
 
-
-/* =========================================================
-   CONTRAST
-========================================================= */
-
-function contrast(hex){
-
-    hex =
-        hex.replace("#","");
-
-
-    const r =
-        parseInt(
-            hex.substring(0,2),
-            16
-        );
-
-    const g =
-        parseInt(
-            hex.substring(2,4),
-            16
-        );
-
-    const b =
-        parseInt(
-            hex.substring(4,6),
-            16
-        );
-
-
-    const brightness =
-        (
-            0.299*r +
-            0.587*g +
-            0.114*b
-        );
-
-
-    return brightness > 175
-        ? "#514957"
-        : "#ffffff";
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
 
 function escapeHTML(text){
-
     return String(text)
-
         .replaceAll("&","&amp;")
-
         .replaceAll("<","&lt;")
-
         .replaceAll(">","&gt;")
-
         .replaceAll('"',"&quot;")
-
-        .replaceAll("'","&#039;");
-
+        .replaceAll("'",&#039;);
 }
 
-
-/* =========================================================
-   TOAST
-========================================================= */
 
 function showToast(message){
-
-    const toast =
-        document.getElementById(
-            "toast"
-        );
-
-
-    toast.textContent =
-        message;
-
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    setTimeout(
-        ()=>{
-            toast.classList.remove(
-                "show"
-            );
-        },
-        2300
-    );
-
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(()=>{ toast.classList.remove("show"); }, 2300);
 }
 
 
-/* =========================================================
-   MODAL OUTSIDE CLICK
-========================================================= */
-
-document.getElementById(
-    "lessonModal"
-).addEventListener(
-    "click",
-    function(event){
-
-        if(event.target === this){
-
-            closeLessonModal();
-
-        }
-
+document.getElementById("lessonModal").addEventListener("click", function(event){
+    if(event.target === this){
+        closeLessonModal();
     }
-);
+});
 
 
-/* =========================================================
-   KEYBOARD ESC
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    event=>{
-
-        if(event.key === "Escape"){
-
-            closeLessonModal();
-
-        }
-
+document.addEventListener("keydown", event=>{
+    if(event.key === "Escape"){
+        closeLessonModal();
     }
-);
+});
 
 </script>
 
