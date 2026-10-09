@@ -15,16 +15,18 @@
    ========================================================= */
 
 :root {
-    --bg: #f8f5fb;
+    --bg: #f7f5fb;
     --card: #ffffff;
-    --text: #504957;
-    --muted: #8b8492;
-    --border: #e7e0eb;
-    --primary: #9b7eb3;
-    --primary-dark: #77578f;
-    --danger: #d98b8b;
-    --soft: #f3edf6;
-    --shadow: 0 8px 25px rgba(80,60,90,.08);
+    --text: #39364a;
+    --muted: #858296;
+    --border: #e9e5f0;
+    --primary: #9178c3;
+    --primary-dark: #755ca8;
+    --danger: #cf777f;
+    --soft: #f1edfa;
+    --shadow: 0 12px 34px rgba(71, 57, 102, .08);
+    --mint: #e6f3ed;
+    --peach: #fff0e8;
 }
 
 * {
@@ -49,8 +51,12 @@ textarea {
 
 body {
     margin: 0;
-    background: var(--bg);
+    background:
+        radial-gradient(ellipse at 4% 0%, rgba(221, 211, 246, .42), transparent 28rem),
+        radial-gradient(ellipse at 98% 16%, rgba(221, 242, 232, .5), transparent 27rem),
+        var(--bg);
     color: var(--text);
+    min-height: 100vh;
 }
 
 /* =========================================================
@@ -61,9 +67,9 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(255,255,255,.96);
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,.88);
+    border-bottom: 1px solid rgba(233,229,240,.8);
+    backdrop-filter: blur(16px);
 }
 
 .header-inner {
@@ -80,6 +86,7 @@ header {
     font-size: 25px;
     font-weight: 800;
     color: var(--primary-dark);
+    letter-spacing: -.06em;
 }
 
 .logo span {
@@ -103,18 +110,20 @@ button {
 
 .btn {
     padding: 10px 14px;
-    border-radius: 11px;
+    border-radius: 13px;
     background: var(--soft);
     color: var(--text);
-    transition: .18s;
+    font-weight: 650;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
 .btn:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 16px rgba(71,57,102,.12);
 }
 
 .btn.primary {
-    background: var(--primary);
+    background: linear-gradient(135deg, #a18bd1, #8870bc);
     color: white;
 }
 
@@ -123,8 +132,8 @@ button {
 }
 
 .btn.danger {
-    background: #f6e1e1;
-    color: #9b5b5b;
+    background: #fbe9e9;
+    color: #9c515b;
 }
 
 /* =========================================================
@@ -133,25 +142,27 @@ button {
 
 .container {
     width: min(1500px,95%);
-    margin: 25px auto 60px;
+    margin: 32px auto 60px;
 }
 
 .panel {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 18px;
+    border-radius: 23px;
+    padding: 23px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow);
+    transition: box-shadow .2s ease, transform .2s ease;
 }
 
 .panel-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 15px;
+    font-size: 17px;
+    font-weight: 750;
+    margin-bottom: 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
 }
 
 /* =========================================================
@@ -174,17 +185,19 @@ button {
 .field label {
     color: var(--muted);
     font-size: 13px;
+    font-weight: 650;
 }
 
 .field input,
 .field select,
 .field textarea {
     border: 1px solid var(--border);
-    background: #fcfbfd;
-    border-radius: 11px;
-    padding: 10px;
+    background: #fdfcff;
+    border-radius: 12px;
+    padding: 11px 12px;
     outline: none;
     color: var(--text);
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
 .field textarea {
@@ -196,6 +209,8 @@ button {
 .field select:focus,
 .field textarea:focus {
     border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(145,120,195,.12);
 }
 
 .custom-days-grid {
@@ -234,7 +249,7 @@ button {
     align-items: center;
     gap: 9px;
     padding: 9px;
-    background: #faf8fb;
+    background: #fcfbfe;
     border: 1px solid var(--border);
     border-radius: 11px;
     cursor: pointer;
@@ -242,7 +257,7 @@ button {
 }
 
 .subject-item:hover {
-    background: #f0eef3;
+    background: #f6f2fb;
     transform: scale(1.02);
 }
 
@@ -263,7 +278,8 @@ button {
     width: 100%;
     overflow: auto;
     border: 1px solid var(--border);
-    border-radius: 15px;
+    border-radius: 17px;
+    background: #fff;
 }
 
 .timetable {
@@ -279,25 +295,27 @@ button {
 }
 
 .timetable th {
-    background: #f7f2f9;
-    padding: 12px 7px;
+    background: #f2eef9;
+    padding: 14px 8px;
     font-size: 14px;
     text-align: center;
+    color: #635b78;
+    font-weight: 750;
 }
 
 .time-cell {
     width: 95px;
     min-width: 95px;
     text-align: center;
-    background: #faf8fb;
+    background: #faf9fd;
     color: var(--muted);
     font-size: 12px;
     padding: 5px;
 }
 
 .day-cell {
-    height: 62px;
-    padding: 4px;
+    height: 68px;
+    padding: 5px;
     vertical-align: top;
 }
 
@@ -307,17 +325,17 @@ button {
 }
 
 .empty-cell:hover {
-    background: #faf7fc;
+    background: #f5f1fc;
 }
 
 .deleted-time {
     background:
         repeating-linear-gradient(
             45deg,
-            #f6f1f8,
-            #f6f1f8 8px,
-            #ece5ef 8px,
-            #ece5ef 16px
+            #f8f5fa,
+            #f8f5fa 8px,
+            #f0ebf5 8px,
+            #f0ebf5 16px
         );
 }
 
@@ -329,8 +347,8 @@ button {
     width: 100%;
     height: 100%;
     min-height: 54px;
-    border-radius: 11px;
-    padding: 7px;
+    border-radius: 13px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -338,12 +356,13 @@ button {
     text-align: center;
     cursor: pointer;
     overflow: hidden;
-    transition: .15s;
+    transition: transform .18s ease, box-shadow .18s ease;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.42);
 }
 
 .lesson:hover {
     transform: scale(1.01);
-    box-shadow: 0 5px 14px rgba(0,0,0,.10);
+    box-shadow: 0 7px 18px rgba(65,50,82,.15);
 }
 
 .lesson-name {
@@ -385,6 +404,22 @@ button {
     font-size: 13px;
 }
 
+.skipped-item {
+    background: var(--mint);
+    color: #477361;
+    padding: 7px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.skipped-item button {
+    background: transparent;
+    color: inherit;
+    font-weight: bold;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
 .deleted-item button {
     background: transparent;
     color: inherit;
@@ -417,9 +452,10 @@ button {
     max-height: 92vh;
     overflow-y: auto;
     background: white;
-    border-radius: 22px;
-    padding: 24px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.22);
+    border: 1px solid rgba(233,229,240,.9);
+    border-radius: 25px;
+    padding: 26px;
+    box-shadow: 0 24px 70px rgba(49,39,69,.2);
 }
 
 .modal h2 {
@@ -514,9 +550,25 @@ button {
    ========================================================= */
 
 @media(max-width:700px) {
+    .container {
+        width: min(100% - 22px, 1500px);
+        margin-top: 18px;
+    }
+    .panel {
+        border-radius: 19px;
+        padding: 17px;
+    }
     .header-inner {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
+            animation-duration: .01ms !important;
+        }
     }
     .header-actions {
         justify-content: center;
@@ -692,6 +744,44 @@ button {
 </div>
 </section>
 
+<!-- =======================================================
+     SKIP TIME
+======================================================= -->
+
+<section class="panel no-print">
+<div class="panel-title" data-i18n="skipPeriod">
+    Skip time from the schedule
+</div>
+<p style="margin:-8px 0 17px;color:var(--muted);font-size:13px" data-i18n="skipDescription">
+    The selected time disappears from the timetable; unlike deleted periods, it is not crossed out.
+</p>
+
+<div class="settings-grid">
+    <div class="field">
+        <label data-i18n="from">From</label>
+        <input type="time" id="skipStart" value="13:00">
+    </div>
+
+    <div class="field">
+        <label data-i18n="to">To</label>
+        <input type="time" id="skipEnd" value="14:00">
+    </div>
+
+    <div class="field" style="justify-content:flex-end;">
+        <button class="btn primary" onclick="skipTimePeriod()">
+            ↗ <span data-i18n="skip">Skip time</span>
+        </button>
+    </div>
+</div>
+
+<div style="margin-top:15px">
+    <div style="font-size:13px;color:var(--muted)" data-i18n="skippedPeriods">
+        Skipped times
+    </div>
+    <div id="skippedList" class="deleted-list" style="margin-top:8px"></div>
+</div>
+</section>
+
 
 <!-- =======================================================
      REGISTERED SUBJECTS (LIBRARY)
@@ -848,31 +938,31 @@ button {
 
 const T = {
 fr: {
-settings:"Paramètres", language:"Langue", tableTitle:"Titre du tableau", orientation:"Orientation", vertical:"Vertical", horizontal:"Horizontal", numberDays:"Nombre de jours", dayStart:"Début de la journée", dayEnd:"Fin de la journée", slotDuration:"Durée des créneaux", deletePeriod:"Supprimer une période vide", from:"De", to:"À", delete:"Supprimer", deletedPeriods:"Périodes supprimées", colors:"Couleurs des matières", addLesson:"Ajouter", save:"Sauvegarder", print:"Imprimer", day:"Jour", subject:"Matière", start:"Début", end:"Fin", teacher:"Professeur", location:"Salle / Lieu", color:"Couleur", cancel:"Annuler", confirm:"Enregistrer",
+settings:"Paramètres", language:"Langue", tableTitle:"Titre du tableau", orientation:"Orientation", vertical:"Vertical", horizontal:"Horizontal", numberDays:"Nombre de jours", dayStart:"Début de la journée", dayEnd:"Fin de la journée", slotDuration:"Durée des créneaux", deletePeriod:"Supprimer une période vide", skipPeriod:"Ignorer une période dans l’emploi du temps", skipDescription:"La période choisie disparaît du tableau ; contrairement aux périodes supprimées, elle n’est pas barrée.", skip:"Ignorer cette période", skippedPeriods:"Périodes ignorées", skipConflict:"Une séance existe pendant cette période.", skipOutsideSchedule:"Cette période doit se trouver dans les heures de la journée.", from:"De", to:"À", delete:"Supprimer", deletedPeriods:"Périodes supprimées", colors:"Couleurs des matières", addLesson:"Ajouter", save:"Sauvegarder", print:"Imprimer", day:"Jour", subject:"Matière", start:"Début", end:"Fin", teacher:"Professeur", location:"Salle / Lieu", color:"Couleur", cancel:"Annuler", confirm:"Enregistrer",
 // New terms
 applyTo:"Appliquer à", allDays:"Tous les jours", specificDay:"Jour spécifique", customDays:"Jours personnalisés", selectDays:"Sélectionnez les jours", registeredSubjects:"Matières enregistrées", addSubject:"Ajouter une matière", editSubject:"Modifier la matière", subjectName:"Nom de la matière", deleteConflict:"Une séance existe dans cette période pour les jours sélectionnés.", periodDeleted:"Période supprimée.", subjectSaved:"Matière enregistrée.", subjectDeleted:"Matière supprimée."
 },
 
 en: {
-settings:"Settings", language:"Language", tableTitle:"Table title", orientation:"Orientation", vertical:"Vertical", horizontal:"Horizontal", numberDays:"Number of days", dayStart:"Day start", dayEnd:"Day end", slotDuration:"Time slot duration", deletePeriod:"Delete empty period", from:"From", to:"To", delete:"Delete", deletedPeriods:"Deleted periods", colors:"Subject colors", addLesson:"Add", save:"Save", print:"Print", day:"Day", subject:"Subject", start:"Start", end:"End", teacher:"Teacher", location:"Room / Location", color:"Color", cancel:"Cancel", confirm:"Save",
+settings:"Settings", language:"Language", tableTitle:"Table title", orientation:"Orientation", vertical:"Vertical", horizontal:"Horizontal", numberDays:"Number of days", dayStart:"Day start", dayEnd:"Day end", slotDuration:"Time slot duration", deletePeriod:"Delete empty period", skipPeriod:"Skip time from the schedule", skipDescription:"The selected time disappears from the timetable; unlike deleted periods, it is not crossed out.", skip:"Skip time", skippedPeriods:"Skipped times", skipConflict:"A lesson is scheduled during this time.", skipOutsideSchedule:"This time must fall within the scheduled day.", from:"From", to:"To", delete:"Delete", deletedPeriods:"Deleted periods", colors:"Subject colors", addLesson:"Add", save:"Save", print:"Print", day:"Day", subject:"Subject", start:"Start", end:"End", teacher:"Teacher", location:"Room / Location", color:"Color", cancel:"Cancel", confirm:"Save",
 // New terms
 applyTo:"Apply to", allDays:"All days", specificDay:"Specific day", customDays:"Custom days", selectDays:"Select days", registeredSubjects:"Registered subjects", addSubject:"Add subject", editSubject:"Edit subject", subjectName:"Subject name", deleteConflict:"A lesson exists in this period for the selected days.", periodDeleted:"Period deleted.", subjectSaved:"Subject saved.", subjectDeleted:"Subject deleted."
 },
 
 es: {
-settings:"Configuración", language:"Idioma", tableTitle:"Título del horario", orientation:"Orientación", vertical:"Vertical", horizontal:"Horizontal", numberDays:"Número de días", dayStart:"Inicio del día", dayEnd:"Fin del día", slotDuration:"Duración de los bloques", deletePeriod:"Eliminar período vacío", from:"Desde", to:"Hasta", delete:"Eliminar", deletedPeriods:"Períodos eliminados", colors:"Colores de asignaturas", addLesson:"Añadir", save:"Guardar", print:"Imprimir", day:"Día", subject:"Asignatura", start:"Inicio", end:"Fin", teacher:"Profesor", location:"Aula / Lugar", color:"Color", cancel:"Cancelar", confirm:"Guardar",
+settings:"Configuración", language:"Idioma", tableTitle:"Título del horario", orientation:"Orientación", vertical:"Vertical", horizontal:"Horizontal", numberDays:"Número de días", dayStart:"Inicio del día", dayEnd:"Fin del día", slotDuration:"Duración de los bloques", deletePeriod:"Eliminar período vacío", skipPeriod:"Omitir un período del horario", skipDescription:"El tiempo seleccionado desaparece del horario; a diferencia de los períodos eliminados, no queda tachado.", skip:"Omitir período", skippedPeriods:"Períodos omitidos", skipConflict:"Hay una clase programada durante este período.", skipOutsideSchedule:"El período debe estar dentro del horario del día.", from:"Desde", to:"Hasta", delete:"Eliminar", deletedPeriods:"Períodos eliminados", colors:"Colores de asignaturas", addLesson:"Añadir", save:"Guardar", print:"Imprimir", day:"Día", subject:"Asignatura", start:"Inicio", end:"Fin", teacher:"Profesor", location:"Aula / Lugar", color:"Color", cancel:"Cancelar", confirm:"Guardar",
 // New terms
 applyTo:"Aplicar a", allDays:"Todos los días", specificDay:"Día específico", customDays:"Días personalizados", selectDays:"Seleccionar días", registeredSubjects:"Asignaturas registradas", addSubject:"Añadir asignatura", editSubject:"Editar asignatura", subjectName:"Nombre de la asignatura", deleteConflict:"Existe una lección en este período para los días seleccionados.", periodDeleted:"Período eliminado.", subjectSaved:"Asignatura guardada.", subjectDeleted:"Asignatura eliminada."
 },
 
 ar: {
-settings:"الإعدادات", language:"اللغة", tableTitle:"عنوان الجدول", orientation:"اتجاه الجدول", vertical:"طولي", horizontal:"عرضي", numberDays:"عدد أيام الدراسة", dayStart:"بداية اليوم", dayEnd:"نهاية اليوم", slotDuration:"مدة الخانات", deletePeriod:"حذف فترة فارغة", from:"من", to:"إلى", delete:"حذف", deletedPeriods:"الفترات المحذوفة", colors:"ألوان المواد", addLesson:"إضافة حصة", save:"حفظ", print:"طباعة", day:"اليوم", subject:"المادة", start:"البداية", end:"النهاية", teacher:"الأستاذ", location:"القاعـة / المكان", color:"اللون", cancel:"إلغاء", confirm:"حفظ",
+settings:"الإعدادات", language:"اللغة", tableTitle:"عنوان الجدول", orientation:"اتجاه الجدول", vertical:"طولي", horizontal:"عرضي", numberDays:"عدد أيام الدراسة", dayStart:"بداية اليوم", dayEnd:"نهاية اليوم", slotDuration:"مدة الخانات", deletePeriod:"حذف فترة فارغة", skipPeriod:"تجاوز وقت من الجدول", skipDescription:"يختفي الوقت المحدد من الجدول؛ بخلاف الفترات المحذوفة، لا يتم شطبه.", skip:"تجاوز الوقت", skippedPeriods:"الأوقات المتجاوزة", skipConflict:"توجد حصة مجدولة خلال هذه الفترة.", skipOutsideSchedule:"يجب أن تقع الفترة ضمن ساعات اليوم الدراسي.", from:"من", to:"إلى", delete:"حذف", deletedPeriods:"الفترات المحذوفة", colors:"ألوان المواد", addLesson:"إضافة حصة", save:"حفظ", print:"طباعة", day:"اليوم", subject:"المادة", start:"البداية", end:"النهاية", teacher:"الأستاذ", location:"القاعـة / المكان", color:"اللون", cancel:"إلغاء", confirm:"حفظ",
 // New terms
 applyTo:"تطبيق على", allDays:"جميع الأيام", specificDay:"يوم محدد", customDays:"أيام مخصصة", selectDays:"تحديد الأيام", registeredSubjects:"المواد المسجلة", addSubject:"إضافة مادة", editSubject:"تعديل المادة", subjectName:"اسم المادة", deleteConflict:"توجد حصة مسجلة في هذه الفترة للأيام المحددة.", periodDeleted:"تم حذف الفترة.", subjectSaved:"تم حفظ المادة.", subjectDeleted:"تم حذف المادة."
 },
 
 darija: {
-settings:"الإعدادات", language:"اللغة", tableTitle:"عنوان الجدول", orientation:"اتجاه الجدول", vertical:"طولي", horizontal:"عرضي", numberDays:"عدد أيام القراية", dayStart:"بداية النهار", dayEnd:"نهاية النهار", slotDuration:"مدة الخانات", deletePeriod:"مسح فترة خاوية", from:"من", to:"حتى", delete:"مسح", deletedPeriods:"الفترات الممسوحة", colors:"ألوان المواد", addLesson:"زيد حصة", save:"حفظ", print:"طبع", day:"النهار", subject:"المادة", start:"البداية", end:"النهاية", teacher:"الأستاذ", location:"القاعـة / البلاصة", color:"اللون", cancel:"إلغاء", confirm:"حفظ",
+settings:"الإعدادات", language:"اللغة", tableTitle:"عنوان الجدول", orientation:"اتجاه الجدول", vertical:"طولي", horizontal:"عرضي", numberDays:"عدد أيام القراية", dayStart:"بداية النهار", dayEnd:"نهاية النهار", slotDuration:"مدة الخانات", deletePeriod:"مسح فترة خاوية", skipPeriod:"تجاوز وقت من الجدول", skipDescription:"الوقت لي اخترتي كيختافي من الجدول وما كيتشطبش بحال الفترة الممسوحة.", skip:"تجاوز الوقت", skippedPeriods:"الأوقات المتجاوزة", skipConflict:"كاينة حصة فهاد الوقت.", skipOutsideSchedule:"خاص هاد الفترة تكون وسط ساعات القراية.", from:"من", to:"حتى", delete:"مسح", deletedPeriods:"الفترات الممسوحة", colors:"ألوان المواد", addLesson:"زيد حصة", save:"حفظ", print:"طبع", day:"النهار", subject:"المادة", start:"البداية", end:"النهاية", teacher:"الأستاذ", location:"القاعـة / البلاصة", color:"اللون", cancel:"إلغاء", confirm:"حفظ",
 // New terms
 applyTo:"طبق على", allDays:"ڭاع الأيام", specificDay:"نهار محدد", customDays:"أيام مخصصة", selectDays:"عزل الأيام", registeredSubjects:"المواد المسجلة", addSubject:"زيد مادة", editSubject:"بدل المادة", subjectName:"السمية د المادة", deleteConflict:"كاينة حصة فهاد الوقت للأيام لي عزلت.", periodDeleted:"تم مسح الفترة.", subjectSaved:"تم حفظ المادة.", subjectDeleted:"تم مسح المادة."
 }
@@ -906,6 +996,7 @@ let state = {
     days:[],
     lessons:[],
     deletedPeriods:[], // Format updated: {start, end, days: ['Lundi', ...]}
+    skippedPeriods:[],
     colors:{
         "Math":"#c9dcf2",
         "Français":"#f3c7d9",
@@ -936,6 +1027,7 @@ window.addEventListener("DOMContentLoaded",()=>{
     updateDeleteDaysUI();
     renderTimetable();
     updateDeletedList();
+    updateSkippedList();
 });
 
 function createDaysIfNecessary(){
@@ -1024,11 +1116,89 @@ function getTimeSlots(){
     const slots = [];
 
     if(duration <= 0 || end <= start) return slots;
-    for(let t=start; t<end; t+=duration){
-        const e = Math.min(t+duration, end);
+    const skipped = (state.skippedPeriods || [])
+        .map(period => ({start:timeToMinutes(period.start), end:timeToMinutes(period.end)}))
+        .filter(period => period.end > period.start)
+        .sort((a,b) => a.start - b.start);
+
+    for(let t=start; t<end;){
+        const activeSkip = skipped.find(period => t >= period.start && t < period.end);
+        if(activeSkip){
+            t = Math.min(activeSkip.end, end);
+            continue;
+        }
+        const nextSkip = skipped.find(period => period.start > t);
+        const e = Math.min(t + duration, end, nextSkip ? nextSkip.start : end);
+        if(e <= t) break;
         slots.push({start:minutesToTime(t), end:minutesToTime(e)});
+        t = e;
     }
     return slots;
+}
+
+function skipTimePeriod(){
+    const start = document.getElementById("skipStart").value;
+    const end = document.getElementById("skipEnd").value;
+    if(!start || !end){
+        showToast(T[state.language].cancel || "Invalid time.");
+        return;
+    }
+    const startMinutes = timeToMinutes(start);
+    const endMinutes = timeToMinutes(end);
+    const dayStart = timeToMinutes(document.getElementById("dayStart").value);
+    const dayEnd = timeToMinutes(document.getElementById("dayEnd").value);
+
+    if(startMinutes >= endMinutes){
+        showToast(T[state.language].cancel || "Invalid time.");
+        return;
+    }
+    if(startMinutes < dayStart || endMinutes > dayEnd){
+        showToast(T[state.language].skipOutsideSchedule);
+        return;
+    }
+    state.skippedPeriods = state.skippedPeriods || [];
+    if(state.skippedPeriods.some(period =>
+        startMinutes < timeToMinutes(period.end) && endMinutes > timeToMinutes(period.start)
+    )){
+        showToast(T[state.language].skipConflict);
+        return;
+    }
+    const conflict = state.lessons.some(lesson =>
+        timeToMinutes(lesson.start) < endMinutes && timeToMinutes(lesson.end) > startMinutes
+    );
+    if(conflict){
+        showToast(T[state.language].skipConflict);
+        return;
+    }
+
+    state.skippedPeriods.push({start, end});
+    renderTimetable();
+    updateSkippedList();
+    saveData(false);
+}
+
+function restoreSkippedPeriod(index){
+    state.skippedPeriods.splice(index, 1);
+    renderTimetable();
+    updateSkippedList();
+    saveData(false);
+}
+
+function updateSkippedList(){
+    const container = document.getElementById("skippedList");
+    container.innerHTML = "";
+    (state.skippedPeriods || []).forEach((period, index) => {
+        const item = document.createElement("div");
+        item.className = "skipped-item";
+        item.append(document.createTextNode(`${period.start} → ${period.end} `));
+        const restore = document.createElement("button");
+        restore.type = "button";
+        restore.textContent = "×";
+        restore.setAttribute("aria-label", `${period.start} – ${period.end}`);
+        restore.onclick = () => restoreSkippedPeriod(index);
+        item.appendChild(restore);
+        container.appendChild(item);
+    });
 }
 
 /* =========================================================
@@ -1570,6 +1740,14 @@ function saveLesson(){
         showToast("Cette séance traverse une période supprimée."); return;
     }
 
+    const skippedConflict = (state.skippedPeriods || []).some(period =>
+        timeToMinutes(start) < timeToMinutes(period.end) &&
+        timeToMinutes(end) > timeToMinutes(period.start)
+    );
+    if(skippedConflict){
+        showToast(T[state.language].skipConflict); return;
+    }
+
     const overlap = state.lessons.some(existing => {
         if(editingLessonId && existing.id === editingLessonId) return false;
         if(existing.day !== day) return false;
@@ -1659,9 +1837,11 @@ function loadData(){
 function newTable(){
     state.lessons = [];
     state.deletedPeriods = [];
+    state.skippedPeriods = [];
     saveData(false);
     renderTimetable();
     updateDeletedList();
+    updateSkippedList();
 }
 
 /* =========================================================
